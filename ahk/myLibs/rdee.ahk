@@ -21,6 +21,15 @@ ArrayEqual(a1, a2){
 }
 
 
+; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> path-relative functions
+GetBaseName(path) {
+    ;;; file name cannot contain "/" or "\"
+    parts := StrSplit(path, ["\", "/"])
+    return parts[parts.Length]
+}
+
+
+
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> windows-relative function
 GetActiveWindowInfo() {
     ; Check if the active window is a File Explorer window
