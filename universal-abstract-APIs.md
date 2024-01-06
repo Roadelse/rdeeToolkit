@@ -16,6 +16,29 @@
    + 利用`decalre -p`实现, 如果是array, 就echo 1, return 0, 否则echo 0, return 101
    + (*to-be-dev*) 对于`declare -n A=B`这类暂时无法判定, 实际是, 但是会当成不是, 目前
 
+## ErrorHandle
+
+### assert: 仿python的assert
++ **Format :** `assert(cond, errMsg)`
++ **L1 :** 判定condition, 如果是`false`, 就打印`errMsg`然后退出程序
+#### python
++ 自带
+
+#### powershell
++ `Assert [-cond] <condition> [[-errMsg] <errMsg>]`
+
+
+## copy
+
+### deepcopy: 深拷贝
++ **Format :** `deepcopy(obj)`
++ **L1 :** 简单深拷贝
+#### python
++ STL自带: `copy.deepcopy(x, memo=None, _nil=[])`
+#### powershell
++ `deepcopy [-obj] <object>`
++ 还是放弃**Verb-Noun**的风格吧, 保持和我的整体风格一致
+
 # Array
 
 ## querying

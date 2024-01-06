@@ -32,6 +32,11 @@ GetBaseName(path) {
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> windows-relative function
 GetActiveWindowInfo() {
+    ;;; window info: [exe_name, url]
+
+
+    procpath := WinGetProcessPath("A")
+    ; ----------------------- for file explorers
     ; Check if the active window is a File Explorer window
     if (WinActive("ahk_class CabinetWClass")) {
         ; Try to get the path of the active Explorer window
@@ -39,12 +44,13 @@ GetActiveWindowInfo() {
             try {
                 if (window.HWND = WinActive("A")) {
                     path := window.Document.Folder.Self.Path
-                    return path
+                    return [procpath, path]
                 }
             }
         }
     }
 
+    ; ----------------------- for internet explorer
     ; If the active window is not an Explorer window, check if it's a Chrome window
     if (WinActive("ahk_exe chrome.exe") or WinActive("ahk_exe 360ChromeX.exe") or WinActive("ahk_exe msedge.exe")) {
         ; Store the current contents of the clipboard
@@ -67,41 +73,42 @@ GetActiveWindowInfo() {
         ; Restore the old clipboard
         ; Clipboard := old_clipboard
 
-        return url
+        return [procpath, url]
     }
 
 
+    ; ----------------------- for text editor
     if (WinActive("ahk_exe sublime_text.exe")) {
         ti := WinGetTitle("A")
         if (InStr(ti, " • - Sublime")) {  ; >- return sublime exe for temporary file
-            return WinGetProcessPath("A")
+            return [procpath, WinGetProcessPath("A")]
         } else {  ; >- return file path for saved, solid file
             filepath := SubStr(ti, 1, -15)
-            return filepath
+            return [procpath, filepath]
         }
     }
 
 
+    ; ----------------------- for office
     if (WinActive("ahk_exe WINWORD.EXE")){
         word := ComObjActive("Word.Application")
-        return word.ActiveDocument.FullName
+        return [procpath, word.ActiveDocument.FullName]
     }
 
     if (WinActive("ahk_exe EXCEL.EXE")){
         excel := ComObjActive("Excel.Application")
-        return excel.ActiveWorkbook.FullName
+        return [procpath, excel.ActiveWorkbook.FullName]
     }
 
     if (WinActive("ahk_exe POWERPNT.EXE")){
         ppt := ComObjActive("PowerPoint.Application")
-        return ppt.ActivePresentation.FullName
+        return [procpath, ppt.ActivePresentation.FullName]
     }
 
 
     ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> return the process executable path, for neither explorer nor web-browser. By now, it cannot resolve the opened file path in some apps, such as excel, sublime, .... To be developed
-    procpath := WinGetProcessPath("A")
 
-    return procpath
+    return [procpath, ""]
 }
 
 
