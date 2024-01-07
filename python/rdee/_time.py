@@ -151,7 +151,7 @@ def month2season(ms, opt = {}):
 def dim_xxx_m2s_n(data, idim, yms, method):
     # yms : an array, format : yyyymm
     import numpy as np
-    import rdee_array
+    from . import _array
 
     data_np = np.array(data)
 
@@ -171,7 +171,7 @@ def dim_xxx_m2s_n(data, idim, yms, method):
 
     ndims = len(data_np.shape)
 
-    res = rdee_array.dim_xxx_cate_n(data, yss, yssU, idim, method)
+    res = _array.dim_xxx_cate_n(data, yss, yssU, idim, method)
 
     return {'data' : res, 'times' : yssU}
 
@@ -180,7 +180,7 @@ def dim_xxx_m2s_n(data, idim, yms, method):
 # remained
 #**********************************************************************
 def transform_time_reso_rtc(data, idim, time, opt):
-    from rdee_array import dim_xxx_n, dim_xxx_label_n, dim_xxx_cate_n
+    from ._array import dim_xxx_n, dim_xxx_label_n, dim_xxx_cate_n
     # time : an array of strings representing datetime, such as 2017010123, 202106, ... ...
 
     # opt@

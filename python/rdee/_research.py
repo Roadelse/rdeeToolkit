@@ -53,7 +53,7 @@ def T_TD_RH(T = None, TD = None, RH = None):
 def MEE_ugm3_to_ppbv(var, data, idim, times):
     import numpy as np
     import sys
-    from rdee_array import createSlice
+    from ._array import createSlice
 
 
     index_nso = np.argwhere(times < "20180901").reshape(-1)

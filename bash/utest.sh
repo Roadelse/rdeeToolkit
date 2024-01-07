@@ -88,6 +88,14 @@ function test_aq_hasVal(){
 	[[ `aq_hasVal B hello` == 0 ]] && echo -ne "\033[32m ok \033[0m" || { echo -ne "\033[31m Error \033[0m"; let errCount++; }
 }
 
+function test_sf_startswith(){
+	### This test aims to test sf_startswith and sf_endswith together
+
+	echo -n "test_sf_startswith: "
+
+	[[ `sf_startswith hello hel` == 1 ]] && echo -ne "\033[32m ok \033[0m" || { echo -ne "\033[31m Error \033[0m"; let errCount++; }
+	sf_endswith "r u ok?" " ok?" > /dev/null && echo -ne "\033[32m ok \033[0m" || { echo -ne "\033[31m Error \033[0m"; let errCount++; }
+}
 
 
 

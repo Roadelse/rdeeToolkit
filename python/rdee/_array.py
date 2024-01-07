@@ -524,3 +524,39 @@ def concat_strA_ew(sep, *args):
         rst.append(sep.join([str(x[i]) for x in args]))
     
     return rst
+
+
+
+
+#**********************************************************************
+# split array
+#**********************************************************************
+def asplit(n_or_array, segments, random=False):
+    import numpy as np
+    if isinstance(n_or_array, int):
+        _array = np.array(range(n_or_array))
+    else:
+        _array = np.array(n_or_array)
+    
+    if random:
+        np.random.shuffle(_array)
+    
+    assert isinstance(segments, (list, tuple))
+    if max(segments) < 2:  # do not use <= 1, in avoidance of floating implicit
+        assert np.isclose(np.sum(segments), 1), f'Error! sum should be close to 1, now is {sum(segments)}'
+        _lengths = [round(len(_array)*r) for r in segments]
+        _lengths[-1] = _lengths[-1] + len(_array) - sum(_lengths)
+    else:
+        assert sum(segments) == len(_array)
+        _lengths = segments
+    
+    indexx = list(range(len(_array)))  # index's index
+
+    ret = []
+    i = 0
+    for L in _lengths:
+        ret.append(_array[indexx[i : i+L]].tolist())
+        i += L
+
+    return ret
+    
