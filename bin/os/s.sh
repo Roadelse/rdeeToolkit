@@ -2,7 +2,7 @@
 
 # echo ${PWD} > ~/.path
 
-sFile=$pathSG_re
+sFile=$reSG_dat
 
 curP=${PWD}
 
@@ -36,3 +36,5 @@ done
 sps_str+=')'
 
 echo "$sps_str" > $sFile
+# >>>>>>>>>>>>>>>>> rdee executable
+export PATH=b:$PATH

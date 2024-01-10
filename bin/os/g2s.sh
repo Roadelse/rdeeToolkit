@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sFile=$pathSG_re
+sFile=$reSG_dat
 
 if [[ $1 == "" ]]; then
     sFlag="main"

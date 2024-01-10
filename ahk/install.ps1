@@ -2,17 +2,16 @@
 # This script is used to install all libraries, including my custom and 3rd-party-libs, into the target place, that is, dir(~AHK.exe)/Lib
 
 #code to make sure the script is running as admin
-If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
-{
+If (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     # Relaunch as an elevated process:
-    Start-Process powershell.exe "-ExecutionPolicy","bypass","-File",('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
+    Start-Process powershell.exe "-ExecutionPolicy", "bypass", "-File", ('"{0}"' -f $MyInvocation.MyCommand.Path) -Verb RunAs
     exit
 }
 Set-Location -Path $PSScriptRoot
 
 $ahk_prog_dir = "C:\Program Files\AutoHotkey"
 $curDir = $(Get-Location).Path
-echo "curDir is $curDir"
+Write-Output "curDir is $curDir"
 
 # >>>>>>>>>> 1. check the AHK installation
 if (!(Test-Path $ahk_prog_dir)) {
