@@ -208,12 +208,16 @@ fi
 
 profile=`eval echo $profile`
 
-if [[ -n `grep -P '# >>* \[rdeeToolkit\]' $profile` ]]; then
+if [[ -n `grep -P '# >>* \[rdeeToolkit\]' $profile 2>/dev/null` ]]; then
     sed -i '/^# >* \[rdeeToolkit\]/,/^$/c\
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> [rdeeToolkit] set PS1\
 export PS1='\''\\033[01;32m\\u@\\h\\033[0m:\\033[01;34m\\W\\033[0m$ '\''\
 ' $profile
 else
+    if [[ ! -e $profile ]]; then   #>- added @2024-01-05 22:44:58
+        echo -e "#!/bin/bash\n\n" > $profile
+    fi
+        
     cat << EOF >> $profile
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> [rdeeToolkit] set PS1

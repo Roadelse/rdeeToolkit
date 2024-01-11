@@ -27,7 +27,8 @@ if (-not $psmp_current.Contains($pwshlib)) {
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> [ahk]
 $ahk_install_script = [IO.Path]::GetFullPath("$myDir\..\ahk\install.ps1")
-Start-Process powershell.exe "-File $ahk_install_script" -Verb RunAs -WindowStyle Hidden
+Write-Output ">>> initialize `e[33mrdee-AHK`e[0m library: $ahk_install_script"
+Start-Process pwsh.exe "-File $ahk_install_script" -Verb RunAs -WindowStyle Hidden
 # <<<
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> [bin]
