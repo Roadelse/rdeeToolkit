@@ -1,6 +1,7 @@
 #Requires -Version 7
 
 
+Set-Alias -Name 'vi' -Value 'vim'
 
 function _cdUp {
     [Alias('..')]
@@ -21,6 +22,12 @@ function which {
     Get-Command $name
 }
 
+function touch {
+    param(
+        [string]$name
+    )
+    New-Item -ItemType File -Path $name
+}
 
 function cdG {
     Set-Location D:\recRoot\GitRepos
