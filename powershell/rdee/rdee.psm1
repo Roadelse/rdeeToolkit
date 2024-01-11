@@ -1,6 +1,88 @@
 #Requires -Version 7
 
 
+
+function _cdUp {
+    [Alias('..')]
+    param()
+    Set-Location ..
+}
+
+function _cdUpUp {
+    [Alias('...')]
+    param()
+    Set-Location ..\..
+}
+
+function which {
+    param(
+        [string]$name
+    )
+    Get-Command $name
+}
+
+
+function cdG {
+    Set-Location D:\recRoot\GitRepos
+}
+
+function cdO {
+    Set-Location C:\Users\$env:UserName\OneDrive\recRoot
+}
+
+function cdB {
+    Set-Location D:\BaiduSyncdisk\recRoot
+}
+
+function cdR {
+    Set-Location D:\recRoot
+}
+
+function cdU {
+    Set-Location C:\Users\$env:UserName
+}
+
+function cdD {
+    Set-Location C:\Users\$env:UserName\Desktop
+}
+
+
+function admin {
+    if ($PSVersionTable.PSEdition -eq "Core") {
+        Start-Process pwsh.exe -WorkingDirectory $pwd -Verb RunAs
+    } else {
+        Start-Process powershell.exe -ArgumentList "-NoExit", "-Command Set-Location $pwd" -Verb RunAs
+    }
+}
+
+function run {
+    param(
+        [string]$file
+    )
+    $target = Get-Command $file 2>$null
+    if ($null -eq $target) {
+        $target = Get-Item $file 2>$null
+        if ($null -eq $target) {
+            Write-Error "Cannot find $file"
+            return
+        } else {
+            $target_file = $target.FullName
+        }
+    } else {
+        $target_file = $target.Source
+    }
+
+    if ($target_file.EndsWith('.py')) {
+        python $target_file
+    } elseif ($target_file.EndsWith('.py')) {
+        $target_file
+    } else {
+        Write-Error "Unknown file type: $target_file"
+        return
+    }
+}
+
+
 function Update-Hashtable {
     <#
     .SYNOPSIS
