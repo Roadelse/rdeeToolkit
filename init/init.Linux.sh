@@ -145,14 +145,14 @@ alias ll='ls -alFh'
 alias la='ls -A'
 
 alias pso='ps -o ruser=userForLongName -e -o pid,ppid,c,stime,tty,time,cmd'
-alias psu='ps -u `whoami` -o pid,tty,time,cmd'
+alias psu='ps -u \`whoami\` -o pid,tty,time,cmd'
 alias du1='du --max-depth=1 -h'
 alias dv='dirsv -v'
-alias topu='top -u `whoami`'
+alias topu='top -u \`whoami\`'
 alias g='source g2s'
 alias cdd='source cdDir'
 alias gf='gfortran'
-alias cd0='cd `readlink -f .`'
+alias cd0='cd \`readlink -f .\`'
 
 
 alias web='echo "plz copy : export http_proxy=127.0.0.1:port; export https_proxy=127.0.0.1:port"'
@@ -175,15 +175,15 @@ set-alias ls {ls --color=auto}
 set-alias la {ls -A}
 
 set-alias pso {ps -o ruser=userForLongName -e -o pid,ppid,c,stime,tty,time,cmd}
-set-alias psu {ps -u `whoami` -o pid,tty,time,cmd}
+set-alias psu {ps -u \`whoami\` -o pid,tty,time,cmd}
 set-alias grep {grep --color=auto}
 set-alias du1 {du --max-depth=1 -h}
 set-alias dv {dirs -v}
-set-alias topu {top -u `whoami`}
+set-alias topu {top -u \`whoami\`}
 set-alias g {source g2s}
 set-alias cdd {source cdDir}
 set-alias gf {gfortran}
-set-alias cd0 {cd `readlink -f .`}
+set-alias cd0 {cd \`readlink -f .\`}
 
 
 set-alias web {echo "plz copy : export http_proxy=127.0.0.1:port; export https_proxy=127.0.0.1:port"}
