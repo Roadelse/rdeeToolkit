@@ -1,6 +1,49 @@
 # coding=utf-8
 
 
+
+def ANSIRed(S: str):
+    """
+    This function wraps |arg:S:str| with ANSI color code in red
+
+    :param S: target string
+    """
+    return f"\033[31m{S}\033[0m"
+
+
+def ANSIGreen(S: str):
+    """
+    This function wraps |arg:S:str| with ANSI color code in green
+
+    :param S: target string
+    """
+    return f"\033[32m{S}\033[0m"
+
+
+def ANSIYellow(S: str):
+    """
+    This function wraps |arg:S:str| with ANSI color code in yellow
+
+    :param S: target string
+    """
+    return f"\033[33m{S}\033[0m"
+
+
+def ANSICyan(S: str):
+    """
+    This function wraps |arg:S:str| with ANSI color code in yellow
+
+    :param S: target string
+    """
+    return f"\033[36m{S}\033[0m"
+
+
+def logD(field: str, msg: str, **kwargs):
+    from ._time import NowString
+    print(f"{NowString()}   ({ANSIYellow(field)}) {msg}", **kwargs)
+
+
+
 #**********************************************************************
 # this function aims to open a text file with several possible encodings
 #**********************************************************************
@@ -80,17 +123,17 @@ def write_nc_var(ncf, varName, var) :
 #**********************************************************************
 # this function is used to log with time
 #**********************************************************************
-def logT(s, currL = 0, echoL = 0, mpi = False): # from py_rdee
-    import time
+# def logT(s, currL = 0, echoL = 0, mpi = False): # from py_rdee
+#     import time
 
-    if currL < echoL:
-        return
+#     if currL < echoL:
+#         return
 
-    if mpi:
-        from mpi4py import MPI
-        print("{} - {}, rank = {}".format(time.strftime("%Y/%m/%d %H:%M:%S"), s, MPI.COMM_WORLD.Get_rank()))
-    else:
-        print("{} - {}".format(time.strftime("%Y/%m/%d %H:%M:%S"), s))
+#     if mpi:
+#         from mpi4py import MPI
+#         print("{} - {}, rank = {}".format(time.strftime("%Y/%m/%d %H:%M:%S"), s, MPI.COMM_WORLD.Get_rank()))
+#     else:
+#         print("{} - {}".format(time.strftime("%Y/%m/%d %H:%M:%S"), s))
 
 
 

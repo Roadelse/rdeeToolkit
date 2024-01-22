@@ -1,10 +1,26 @@
 # coding=utf-8
 
+
+import  time
+
+
+def NowString(format: str = '%Y/%m/%d %H:%M:%S') -> str:
+    """
+    This function aims to get now-time in selected format
+    :param str format: datetime format, the same as rules in STL:time
+
+    :return str: now time in given format
+    """
+    return time.strftime(format)
+
+
+
+
+
 #**********************************************************************
 # This function aims to simplify time-statistc by keys
 #**********************************************************************
 def rdTimer(key: any, init: int = 0):
-    import time
     if not init and hasattr(rdTimer, key):
         rst = time.time() - getattr(rdTimer, key)
         setattr(rdTimer, key, time.time())
