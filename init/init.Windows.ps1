@@ -9,7 +9,7 @@ $myDir = $PSScriptRoot
 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>> [python]
-$pylib = [System.IO.Path]::GetFullPath("$myDir\..\rdeeEnv")
+$pylib = [System.IO.Path]::GetFullPath("$myDir\..\python")
 [Environment]::SetEnvironmentVariable('PYTHONPATH', "$pylib", [EnvironmentVariableTarget]::User)
 [Environment]::SetEnvironmentVariable('pipsrc1', "https://pypi.tuna.tsinghua.edu.cn/simple", [EnvironmentVariableTarget]::User)
 # <<<
