@@ -2,3 +2,5 @@
 .obsidian
 wf.*.md
 __pycache__
+*.pyc
+ade*
