@@ -4,3 +4,12 @@ wf.*.md
 __pycache__
 *.pyc
 ade*
+
+*.o
+*.out
+*.exe
+*.a
+*.so
+
+.vscode
+.idea

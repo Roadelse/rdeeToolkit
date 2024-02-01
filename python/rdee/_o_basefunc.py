@@ -2,7 +2,6 @@
 # coding=utf-8
 
 
-#@sk <singleton type="function" description="A class decorator for singleton style">
 def singleton(orig_cls):
     """
     A functional decorator for implementing singleton coding protocol.
@@ -27,4 +26,3 @@ def singleton(orig_cls):
 
     #@sk <return/>
     return orig_cls
-#@sk </singleton>

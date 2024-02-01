@@ -6,6 +6,10 @@ import os.path
 
 import unittest
 import inspect
+
+import numpy as np
+
+
 # ................. project lib
 # ................. 3rd libs
 
@@ -359,6 +363,72 @@ class Test_basicfunc(unittest.TestCase):
         ins1 = cc()
         ins2 = cc()
         self.assertEqual(ins1.rvalue, ins2.rvalue)
+
+
+class Test_string(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def tearDown(self) -> None:
+        pass
+
+    def test_TrimSuffix(self):
+        from .. import String
+
+        ss = ["20240201105000", "20240201105100"]
+        ssTrim = String.trim_suffix(ss)
+        self.assertListEqual(["202402011050", "202402011051"], ssTrim)
+
+
+class Test_time(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def tearDown(self) -> None:
+        pass
+
+    def test_get_time_str_and_scale(self) -> None:
+        from datetime import datetime
+        from .._x_time import Time
+        ts1 = (
+            datetime(2024, 2, 1, 11, 8, 14, 602249),
+            datetime(2024, 2, 1, 11, 8, 15, 135897)
+        )
+        ts2 = (
+            datetime(2024, 2, 1, 11),
+            datetime(2021, 2, 1, 13)
+        )
+
+        ts1_str = Time.get_time_str_and_scale(ts1)
+        self.assertListEqual(["20240201110814", "20240201110815"], ts1_str)
+        ts2_str = Time.get_time_str_and_scale(ts2)
+        self.assertListEqual(["2024020111", "2021020113"], ts2_str)
+
+
+class Test_array(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def tearDown(self) -> None:
+        pass
+
+    def test_drp(self):
+        """
+        This function aims to test Array.drp, including test items:
+            ● Array.drp(arr1, dims=1, op=DRPC.max)
+                test basic functionality
+            ● Array.drp(arr1, dims=2, op=DRPC.min, mapping=...)
+                test basic mapping
+        """
+
+        from .._x_array import Array, DRPC  #@sk import
+
+        arr1 = np.arange(24).reshape((2,3,4))
+        arr1_drp = Array.drp(arr1, dims=1, op=DRPC.max)
+        self.assertListEqual([8,9,10,11,20,21,22,23], arr1_drp.reshape(-1).tolist())  #@sk reference list is set manually
+
+        arr1_drp = Array.drp(arr1, dims=2, op=DRPC.min, mapping={0:[2,3], 1:[0, 1]})
+        self.assertListEqual([2,0,6,4,10,8,14,12,18,16,22,20], arr1_drp.reshape(-1).tolist())  #@sk reference list is set manually
 
 
 def run(targets: list[str]) -> None:

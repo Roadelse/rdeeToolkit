@@ -6,6 +6,8 @@
 This module serves as a global variable holder for the rdee package
 """
 
+import logging
+
 strict: bool = False
 
-logger = None
+logger: logging.Logger | None = None

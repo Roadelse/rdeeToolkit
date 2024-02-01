@@ -18,6 +18,7 @@ from ._x_logging import *
 from ._o_basefunc import singleton
 from ._o_globalstate import *
 from ._x_os import *
+from ._x_string import String
 
 import os
 if os.getenv("reStrict") or os.getenv("reStrict_package_rdee"):
