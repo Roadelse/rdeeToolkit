@@ -6,43 +6,45 @@
 
 namespace redtime //@sk exp for freetime
 {
-	freetime::freetime(std::map<realevel, int64_t>&& timedefs) {
-		for (const auto& kv : timedefs) {
+	freetime::freetime(std::map<realevel, int64_t> &&timedefs)
+	{
+		for (const auto &kv : timedefs)
+		{
 			_values[static_cast<int>(kv.first)] = kv.second;
 		}
 	}
 
-	freetime& freetime::year(const int64_t val)
+	freetime &freetime::year(const int64_t val)
 	{
 		_year = val;
 		return *this;
 	}
-	freetime& freetime::month(const int64_t val)
+	freetime &freetime::month(const int64_t val)
 	{
 		_month = val;
 		return *this;
 	}
-	freetime& freetime::day(const int64_t val)
+	freetime &freetime::day(const int64_t val)
 	{
 		_day = val;
 		return *this;
 	}
-	freetime& freetime::hour(const int64_t val)
+	freetime &freetime::hour(const int64_t val)
 	{
 		_hour = val;
 		return *this;
 	}
-	freetime& freetime::minute(const int64_t val)
+	freetime &freetime::minute(const int64_t val)
 	{
 		_minute = val;
 		return *this;
 	}
-	freetime& freetime::second(const int64_t val)
+	freetime &freetime::second(const int64_t val)
 	{
 		_second = val;
 		return *this;
 	}
-	freetime& freetime::msecond(const int64_t val)
+	freetime &freetime::msecond(const int64_t val)
 	{
 		_msecond = val;
 		return *this;
@@ -128,78 +130,91 @@ namespace redtime //@sk exp for freetime
 		return -1;
 	}
 
-	freetime& freetime::operator+=(const freetime& t2)
+	freetime &freetime::operator+=(const freetime &t2)
 	{
 		for (int i = 0; i < 7; i++)
 			_values[i] += t2._values[i];
 		return *this;
 	}
 
-	freetime freetime::operator+(const freetime& t2) const
+	freetime freetime::operator+(const freetime &t2) const
 	{
 		freetime t6 = *this;
 		t6 += t2;
 		return t6;
 	}
 
-
-	realtime freetime::operator+(const realtime& real) const
+	realtime freetime::operator+(const realtime &real) const
 	{
 		return real + *this;
 	}
 
-
-	freetime& freetime::operator-=(const freetime& t2)
+	freetime &freetime::operator-=(const freetime &t2)
 	{
 		for (int i = 0; i < 7; i++)
 			_values[i] -= t2._values[i];
 		return *this;
 	}
 
-	freetime freetime::operator-(const freetime& t2) const
+	freetime freetime::operator-(const freetime &t2) const
 	{
 		freetime t6 = *this;
 		t6 -= t2;
 		return t6;
 	}
 
-	freetime& freetime::add(const freetime& t2)
+	freetime &freetime::add(const freetime &t2)
 	{
 		*this += t2;
 		return *this;
 	}
 
-	freetime& freetime::add(const freetime* pt2)
+	freetime &freetime::add(const freetime *pt2)
 	{
 		*this += *pt2;
 		return *this;
 	}
 
-	freetime& freetime::sub(const freetime& t2)
+	freetime &freetime::sub(const freetime &t2)
 	{
 		*this -= t2;
 		return *this;
 	}
 
-	freetime& freetime::sub(const freetime* pt2)
+	freetime &freetime::sub(const freetime *pt2)
 	{
 		*this -= *pt2;
 		return *this;
 	}
 
+	bool freetime::is_empty() const
+	{
+		for (int64_t v : _values)
+			if (v != 0)
+				return false;
+		return true;
+	}
+
+	bool freetime::is_positive() const
+	{
+		if (is_empty()) //@sdk branch exclude the boundary condition for empty time
+			return false;
+		return months() >= 0 && seconds() >= 0;
+	}
+
 }
 
+namespace redtime
+{
 
-namespace redtime {
-
-
-	void realtime::check(realevel ts) {
-		//std::cout << "enter check: " << static_cast<int>(ts) << ' ' << static_cast<int>(_timescale) << std::endl;
+	void realtime::check(realevel ts)
+	{
+		// std::cout << "enter check: " << static_cast<int>(ts) << ' ' << static_cast<int>(_timescale) << std::endl;
 		if (_timescale == realevel::UNKNOWN)
 			throw(std::runtime_error("Cannot check an UNKNOWN-timescale realtime"));
 		if (ts > _timescale)
 			throw(std::runtime_error("Cannot check ts > object's timescale"));
-		//std::cout << static_cast<int>(_timescale) << std::endl;
+		// std::cout << static_cast<int>(_timescale) << std::endl;
 		if ((ts == realevel::MONTH || (ts == realevel::ALL && _timescale >= realevel::MONTH)) && month() <= 0 || month() >= 13)
 			throw(std::runtime_error("Wrong month"));
 		if ((ts == realevel::DAY || (ts == realevel::ALL && _timescale >= realevel::DAY)))
@@ -214,7 +229,6 @@ namespace redtime {
 		if ((ts == realevel::MSECOND || (ts == realevel::ALL && _timescale >= realevel::MSECOND)) && _msecond < 0 || _msecond >= 1000)
 			throw(std::runtime_error("Wrong millisecond"));
 	}
-
 
 	void realtime::set_timescale() const
 	{
@@ -234,8 +248,7 @@ namespace redtime {
 		return _timescale;
 	}
 
-
-	realtime& realtime::year(const int64_t val)
+	realtime &realtime::year(const int64_t val)
 	{
 		_year = val;
 		if (_timescale < realevel::YEAR)
@@ -243,7 +256,7 @@ namespace redtime {
 		check(realevel::YEAR);
 		return *this;
 	}
-	realtime& realtime::month(const int64_t val)
+	realtime &realtime::month(const int64_t val)
 	{
 		_month = val;
 		if (_timescale == realevel::YEAR)
@@ -251,7 +264,7 @@ namespace redtime {
 		check(realevel::MONTH);
 		return *this;
 	}
-	realtime& realtime::day(const int64_t val)
+	realtime &realtime::day(const int64_t val)
 	{
 		_day = val;
 		if (_timescale == realevel::MONTH)
@@ -261,19 +274,19 @@ namespace redtime {
 		check(realevel::DAY);
 		return *this;
 	}
-	realtime& realtime::hour(const int64_t val)
+	realtime &realtime::hour(const int64_t val)
 	{
 		_hour = val;
 		if (_timescale == realevel::DAY)
 			set_timescale();
 		else if (_timescale < realevel::DAY)
 			throw(std::runtime_error(""));
-		//std::cout << "cp1" << std::endl;
+		// std::cout << "cp1" << std::endl;
 
 		check(realevel::HOUR);
 		return *this;
 	}
-	realtime& realtime::minute(const int64_t val)
+	realtime &realtime::minute(const int64_t val)
 	{
 		_minute = val;
 		if (_timescale == realevel::HOUR)
@@ -283,7 +296,7 @@ namespace redtime {
 		check(realevel::MINUTE);
 		return *this;
 	}
-	realtime& realtime::second(const int64_t val)
+	realtime &realtime::second(const int64_t val)
 	{
 		_second = val;
 		if (_timescale == realevel::MINUTE)
@@ -293,7 +306,7 @@ namespace redtime {
 		check(realevel::SECOND);
 		return *this;
 	}
-	realtime& realtime::msecond(const int64_t val)
+	realtime &realtime::msecond(const int64_t val)
 	{
 		_msecond = val;
 		if (_timescale == realevel::SECOND)
@@ -303,8 +316,6 @@ namespace redtime {
 		check(realevel::MSECOND);
 		return *this;
 	}
-
-
 
 	int64_t realtime::years() const
 	{
@@ -341,7 +352,6 @@ namespace redtime {
 	{
 		return -1;
 	}
-
 
 	int64_t realtime::stamp() const
 	{
@@ -386,10 +396,11 @@ namespace redtime {
 
 	int realtime::get_days_from_ym(int year, int month)
 	{
-		//std::cout << year << month << std::endl;
+		// std::cout << year << month << std::endl;
 
-		assert(year != 0 && month > 0 && month <= 12);
-		const static int mdays[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+		if (!(year != 0 && month > 0 && month <= 12))
+			throw(std::runtime_error("year = " + std::to_string(year) + ", month = " + std::to_string(month)));
+		const static int mdays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 		if (isLeap(year) && month == 2)
 			return 29;
 		else
@@ -399,6 +410,10 @@ namespace redtime {
 	string realtime::str() const
 	{
 		string rst = std::to_string(year());
+		// std::cout << "rst=" << rst << std::endl;
+		// std::cout << "_year=" << _year << std::endl;
+		// std::cout << "_values[0]=" << _values[0] << std::endl;
+
 		if (_timescale == realevel::YEAR)
 			return rst;
 
@@ -422,17 +437,15 @@ namespace redtime {
 		return rst;
 	}
 
-
-
 	int64_t realtime::countLeap(long year1, long year2, bool with_left, bool with_right)
 	{
 		if (year1 > year2)
 			return countLeap(year2, year1, with_right, with_left);
 		auto countLeapFrom0 = [](long yr, bool with_boundary)
-			{
-				yr = abs(yr);
-				return yr / 4 - yr / 100 + yr / 400 + (with_boundary ? 0 : -1) * realtime::isLeap(yr);
-			};
+		{
+			yr = abs(yr);
+			return yr / 4 - yr / 100 + yr / 400 + (with_boundary ? 0 : -1) * realtime::isLeap(yr);
+		};
 
 		return countLeapFrom0(year2, with_right) * (year2 > 0 ? 1 : -1) - countLeapFrom0(year1, with_left) * (year1 > 0 ? 1 : -1);
 	}
@@ -448,7 +461,6 @@ namespace redtime {
 		jdays += day;
 		return jdays;
 	}
-
 
 	void realtime::sim()
 	{
@@ -496,7 +508,7 @@ namespace redtime {
 
 		//@sk core build a bridge between year-month and day
 		if (_day <= 0)
-		{												//@sk branch convert negative day to positive day, in yearly operation
+		{										  //@sk branch convert negative day to positive day, in yearly operation
 			int64_t nyears_n2p = -_day / 366 + 1; //@sk exp years that makes day be positive
 			int64_t ndays_n2p = nyears_n2p * 365 + realtime::countLeap(_year - nyears_n2p, _year, _month > 2 ? false : true, _month > 2 ? true : false);
 			_year -= nyears_n2p;
@@ -524,6 +536,11 @@ namespace redtime {
 				_year -= 1;
 				assert(_year > 0);
 			}
+			else if (_month == 13)
+			{
+				_month = 1;
+				_year += 1;
+			}
 		}
 
 		// sk ?? restore the fraud
@@ -535,9 +552,7 @@ namespace redtime {
 		return;
 	}
 
-
-
-	realtime& realtime::operator+=(const freetime& itv)
+	realtime &realtime::operator+=(const freetime &itv)
 	{
 		for (int i = 0; i < 7; i++)
 			if (static_cast<int>(_timescale) >= i)
@@ -549,14 +564,14 @@ namespace redtime {
 		return *this;
 	}
 
-	realtime realtime::operator+(const freetime& itv) const
+	realtime realtime::operator+(const freetime &itv) const
 	{
 		realtime real2 = *this;
 		real2 += itv;
 		return real2;
 	}
 
-	realtime& realtime::operator-=(const freetime& itv)
+	realtime &realtime::operator-=(const freetime &itv)
 	{
 		for (int i = 0; i < 7; i++)
 			if (static_cast<int>(_timescale) >= i)
@@ -566,14 +581,14 @@ namespace redtime {
 		return *this;
 	}
 
-	realtime realtime::operator-(const freetime& itv) const
+	realtime realtime::operator-(const freetime &itv) const
 	{
 		realtime real2 = *this;
 		real2 -= itv;
 		return real2;
 	}
 
-	freetime realtime::operator-(const realtime& real) const
+	freetime realtime::operator-(const realtime &real) const
 	{
 		realtime real2 = *this;
 
@@ -586,55 +601,89 @@ namespace redtime {
 		if (stamp1 == stamp2)
 			return freetime();
 
-		//freetime itv(std::map<realevel, int64_t>{{_timescale, stamp1 - stamp2}});
-		//itv.sim();
-		//return itv;
+		// freetime itv(std::map<realevel, int64_t>{{_timescale, stamp1 - stamp2}});
+		// itv.sim();
+		// return itv;
 		return freetime(std::map<realevel, int64_t>{{_timescale, stamp1 - stamp2}});
-
 	}
 
-	bool realtime::operator<(const realtime& real) const{
+	bool realtime::operator<(const realtime &real) const
+	{
 
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 7; i++)
+		{
 			if (_values[i] >= real._values[i])
 				return false;
 		}
 		return true;
 	}
-	bool realtime::operator>(const realtime& real) const{
-		for (int i = 0; i < 7; i++) {
+	bool realtime::operator>(const realtime &real) const
+	{
+		for (int i = 0; i < 7; i++)
+		{
 			if (_values[i] <= real._values[i])
 				return false;
 		}
 		return true;
 	}
-	bool realtime::operator==(const realtime& real) const{
-		for (int i = 0; i < 7; i++) {
+	bool realtime::operator==(const realtime &real) const
+	{
+		for (int i = 0; i < 7; i++)
+		{
 			if (_values[i] != real._values[i])
 				return false;
 		}
 		return true;
 	}
 
-	bool realtime::operator!=(const realtime& real) const{
+	bool realtime::operator!=(const realtime &real) const
+	{
 		return !(*this == real);
 	}
-	bool realtime::operator<=(const realtime& real) const{
-		for (int i = 0; i < 7; i++) {
+	bool realtime::operator<=(const realtime &real) const
+	{
+		for (int i = 0; i < 7; i++)
+		{
 			if (_values[i] > real._values[i])
 				return false;
 		}
 		return true;
-}
-	bool realtime::operator>=(const realtime& real) const{
-		for (int i = 0; i < 7; i++) {
+	}
+	bool realtime::operator>=(const realtime &real) const
+	{
+		for (int i = 0; i < 7; i++)
+		{
 			if (_values[i] < real._values[i])
 				return false;
 		}
 		return true;
+	}
+
+	std::vector<realtime> realtime::range(realtime real1, const realtime &real2, const freetime &frt)
+	{
+		/*
+		This static function aims to generate a vector of realtime based on start, end, and delta time
+		*/
+		if (real1 > real2 || !frt.is_positive())
+			throw(std::runtime_error("(redtime::realtime::range) Error! Requires real1 < real2 now."));
+
+		if (real1 + frt == real1)
+			throw(std::runtime_error("(redtime::realtime::range) Error! interval time scale maks nonsense for input realtime."));
+
+		std::vector<realtime> rstlist;
+		// std::cout << "start loop" << std::endl;
+
+		while (real1 <= real2)
+		{
+			rstlist.push_back(real1);
+			// std::cout << rstlist[0].str() << std::endl;
+			// std::cout << rstlist.size() << std::endl;
+			real1 += frt;
+		}
+		// std::cout << rstlist[0]._values[0] << ' ' << rstlist[0]._month << ' ' << rstlist[0]._day << ' ' << rstlist[0]._hour << rstlist[0]._minute << rstlist[0]._second << rstlist[0]._msecond << std::endl;
+		// std::cout << rstlist[0].str() << std::endl;
+
+		return rstlist;
+	}
+
 }
-
-
-}
-
-

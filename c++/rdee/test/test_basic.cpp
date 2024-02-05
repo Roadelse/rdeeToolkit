@@ -9,6 +9,16 @@ namespace Test_redtime
 {
 	TEST_CASE("randomTest")
 	{
+		// realtime real1(2014);
+		// std::vector<realtime> list;
+		// list.push_back(real1);
+		// list.push_back(real1);
+		// std::cout << real1.str() << std::endl;
+		// std::cout << list[0].str() << std::endl;
+		// std::cout << list.back().str() << std::endl;
+
+		realtime real1(2014, 12, 31);
+		real1 += freetime(0, 0, 1);
 	}
 
 	TEST_CASE("testing redtime definition")
@@ -69,38 +79,37 @@ namespace Test_redtime
 		REQUIRE_THROWS(real2.second(58));
 		realtime real3(2024);
 
-		//REQUIRE(real3.get_timescale() == realevel::YEAR);
-		//REQUIRE(real3.str() == "2024");
+		// REQUIRE(real3.get_timescale() == realevel::YEAR);
+		// REQUIRE(real3.str() == "2024");
 
-		//realtime real3X = real3.month(2).day(28).hour(11).minute(58);
-		//REQUIRE(real3X.str() == "2024/2/28 11:58");
+		// realtime real3X = real3.month(2).day(28).hour(11).minute(58);
+		// REQUIRE(real3X.str() == "2024/2/28 11:58");
 	}
 
+	TEST_CASE("testing realtime base +-")
+	{
+		realtime real1(2024, 2, 4, 14, 45, 59);
+		real1.sim();
+		REQUIRE(real1.str() == "2024/2/4 14:45:59");
 
-	 TEST_CASE("testing realtime base +-")
-	 {
-	 	realtime real1(2024, 2, 4, 14, 45, 59);
-	 	real1.sim();
-	 	REQUIRE(real1.str() == "2024/2/4 14:45:59");
+		REQUIRE_THROWS(realtime(2024, 2, 4, 14, 45, 60));
 
-	 	REQUIRE_THROWS(realtime(2024, 2, 4, 14, 45, 60));
+		realtime real2 = real1 + freetime(0, -20);
+		REQUIRE(real2.str() == "2022/6/4 14:45:59");
 
-	 	realtime real2 = real1 + freetime(0, -20);
-	 	REQUIRE(real2.str() == "2022/6/4 14:45:59");
+		realtime real3 = real1 + freetime(-1, 0, 25, 0, -1, 1);
+		REQUIRE(real3.str() == "2023/3/1 14:45:0");
+		realtime real3B = real1 + freetime(0, 0, 25, 0, -1, 1);
+		REQUIRE(real3B.str() == "2024/2/29 14:45:0");
 
-	 	realtime real3 = real1 + freetime(-1, 0, 25, 0, -1, 1);
-	 	REQUIRE(real3.str() == "2023/3/1 14:45:0");
-	 	realtime real3B = real1 + freetime(0, 0, 25, 0, -1, 1);
-	 	REQUIRE(real3B.str() == "2024/2/29 14:45:0");
+		realtime real4 = real1 + freetime(0, 0, 0, 1234, 5678, 9101112);
+		REQUIRE(real4.str() == "2024/7/14 7:29:11");
 
-	 	realtime real4 = real1 + freetime(0, 0, 0, 1234, 5678, 9101112);
-	 	REQUIRE(real4.str() == "2024/7/14 7:29:11");
+		realtime real5 = freetime(0, 0, -1234, -5678, -9101112, -13141516) + real1; //@sk exp test freetime + realtime
+		REQUIRE(real5.str() == "2002/5/7 17:8:43");
 
-	 	realtime real5 = freetime(0, 0, -1234, -5678, -9101112, -13141516) + real1;  //@sk exp test freetime + realtime
-	 	REQUIRE(real5.str() == "2002/5/7 17:8:43");
-
-	 	realtime real5B = real1 - freetime(0, 0, 1234, 5678, 9101112, 13141516);
-	 	REQUIRE(real5B.str() == "2002/5/7 17:8:43");
+		realtime real5B = real1 - freetime(0, 0, 1234, 5678, 9101112, 13141516);
+		REQUIRE(real5B.str() == "2002/5/7 17:8:43");
 
 		freetime frt1 = real1 - realtime(2024, 2, 4, 14, 46, 0);
 		REQUIRE(frt1.str() == "0/0/0 0:0:-1");
@@ -108,49 +117,65 @@ namespace Test_redtime
 
 		freetime frt2 = realtime(2024, 2, 4) - realtime(2023, 2, 4);
 		REQUIRE(frt2.str() == "0/0/365 0:0:0");
-	 }
+	}
 
-	 TEST_CASE("testing realtime scale +-")
-	 {
-	 	realtime real1(2024);
+	TEST_CASE("testing realtime scale +-")
+	{
+		realtime real1(2024);
 
-	 	//@sk exp test invalid month
-	 	realtime real2 = real1 + freetime(-1, 300);
-	 	REQUIRE(real2.str() == "2023");
+		//@sk exp test invalid month
+		realtime real2 = real1 + freetime(-1, 300);
+		REQUIRE(real2.str() == "2023");
 
-	 	//@sk test invalid minute
-	 	realtime real3 = realtime(2024, 2, 4, 0, 1) - freetime(0, 0, 0, 0, 0, 3600);
-	 	REQUIRE(real3.str() == "2024/2/4 0:1");
+		//@sk test invalid minute
+		realtime real3 = realtime(2024, 2, 4, 0, 1) - freetime(0, 0, 0, 0, 0, 3600);
+		REQUIRE(real3.str() == "2024/2/4 0:1");
+	}
 
+	TEST_CASE("testing realtime::countLeap")
+	{
+		CHECK(realtime::countLeap(1, 1) == 0);
+		CHECK(realtime::countLeap(1, 100) == 24);
+		CHECK(realtime::countLeap(100, 104) == 1);
+		CHECK(realtime::countLeap(-104, -100) == 1);
+		CHECK(realtime::countLeap(-100, 100) == 48);
+		CHECK(realtime::countLeap(1, 400) == 97);
+		CHECK(realtime::countLeap(-400, 100) == 121);
+		CHECK(realtime::countLeap(-100, 400) == 121);
+		CHECK(realtime::countLeap(-104, 400) == 122);
+		CHECK(realtime::countLeap(-104, 400, false) == 121);
+		CHECK(realtime::countLeap(-104, 402) == 122);
+		CHECK(realtime::countLeap(-105, 401, false, false) == 122);
+	}
 
-	 }
+	TEST_CASE("testing realtime::stamp")
+	{
+		CHECK(realtime(1, 1, 1, 1, 1, 1).stamp() == 3661);
+		REQUIRE_THROWS(realtime(-1, 12, 31, 0, 0, 0).stamp());
+		CHECK(realtime(1970, 01, 01, 00, 00, 00).stamp() == 62135596800);
+		CHECK(realtime(2014, 12, 23, 23, 58, 34).stamp() == 63554975914);
 
-	 TEST_CASE("testing realtime::countLeap")
-	 {
-	 	CHECK(realtime::countLeap(1, 1) == 0);
-	 	CHECK(realtime::countLeap(1, 100) == 24);
-	 	CHECK(realtime::countLeap(100, 104) == 1);
-	 	CHECK(realtime::countLeap(-104, -100) == 1);
-	 	CHECK(realtime::countLeap(-100, 100) == 48);
-	 	CHECK(realtime::countLeap(1, 400) == 97);
-	 	CHECK(realtime::countLeap(-400, 100) == 121);
-	 	CHECK(realtime::countLeap(-100, 400) == 121);
-	 	CHECK(realtime::countLeap(-104, 400) == 122);
-	 	CHECK(realtime::countLeap(-104, 400, false) == 121);
-	 	CHECK(realtime::countLeap(-104, 402) == 122);
-	 	CHECK(realtime::countLeap(-105, 401, false, false) == 122);
-	 }
+		CHECK(realtime(2014).stamp() == 2014);
+		CHECK(realtime(3, 12).stamp() == 36);
+		CHECK(realtime(3, 12, 4).stamp() == 1068);
+		CHECK(realtime(3, 12, 4, 10).stamp() == 1067 * 24 + 10);
+	}
 
-	 TEST_CASE("testing realtime::stamp")
-	 {
-	 	CHECK(realtime(1, 1, 1, 1, 1, 1).stamp() == 3661);
-	 	REQUIRE_THROWS(realtime(-1, 12, 31, 0, 0, 0).stamp());
-        CHECK(realtime(1970, 01, 01, 00, 00, 00).stamp() == 62135596800);
-	 	CHECK(realtime(2014, 12, 23, 23, 58, 34).stamp() == 63554975914);
+	TEST_CASE("testing realtime::range")
+	{
+		std::vector<realtime> list1 = realtime::range(realtime(2014), realtime(2024), freetime(1));
+		REQUIRE(list1.size() == 11);
+		REQUIRE(list1[0].str() == "2014");
+		REQUIRE(list1[10].str() == "2024");
+		REQUIRE(list1[9].str() == "2023");
 
-	 	CHECK(realtime(2014).stamp() == 2014);
-	 	CHECK(realtime(3, 12).stamp() == 36);
-	 	CHECK(realtime(3,12, 4).stamp() == 1068);
-	 	CHECK(realtime(3,12, 4, 10).stamp() == 1067 * 24 + 10);
-	 }
+		REQUIRE_THROWS(realtime::range(realtime(2014), realtime(2024), freetime(0, 1)));
+
+		std::vector<realtime> list2 = realtime::range(realtime(2024, 01, 01), realtime(2024, 12, 31), freetime(0, 0, 1));
+		REQUIRE(list2.size() == 366);
+		REQUIRE(list2[0].str() == "2024/1/1");
+		REQUIRE(list2[59].str() == "2024/2/29");
+		REQUIRE(list2.back().str() == "2024/12/31");
+	}
+
 }

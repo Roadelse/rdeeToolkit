@@ -6,6 +6,7 @@
 #include <cassert>
 #include <string>
 #include <map>
+#include <vector>
 
 using std::string;
 
@@ -14,9 +15,9 @@ namespace redtime
 	class time
 	{
 	public:
-		time(int year = 0, int month = 0, int day = 0, int hour = 0, int minute = 0, int second = 0, int msecond = 0) : _values{ year, month, day, hour, minute, second, msecond } {};
-		time(const time& frt) : _values{ frt._values[0], frt._values[1], frt._values[2], frt._values[3], frt._values[4], frt._values[5], frt._values[6] } {};
-		time(time&&) = default;
+		time(int year = 0, int month = 0, int day = 0, int hour = 0, int minute = 0, int second = 0, int msecond = 0) : _values{year, month, day, hour, minute, second, msecond}, _year(_values[0]), _month(_values[1]), _day(_values[2]), _hour(_values[3]), _minute(_values[4]), _second(_values[5]), _msecond(_values[6]){};
+		time(const time &frt) : _values{frt._values[0], frt._values[1], frt._values[2], frt._values[3], frt._values[4], frt._values[5], frt._values[6]}, _year(_values[0]), _month(_values[1]), _day(_values[2]), _hour(_values[3]), _minute(_values[4]), _second(_values[5]), _msecond(_values[6]){};
+		time(time &&other) noexcept : _values{other._year, other._month, other._day, other._hour, other._minute, other._second, other._msecond}, _year(_values[0]), _month(_values[1]), _day(_values[2]), _hour(_values[3]), _minute(_values[4]), _second(_values[5]), _msecond(_values[6]){};
 
 		int64_t year() const { return _year; };
 		int64_t month() const { return _month; };
@@ -25,13 +26,13 @@ namespace redtime
 		int64_t minute() const { return _minute; };
 		int64_t second() const { return _second; };
 		int64_t msecond() const { return _msecond; };
-		virtual time& year(int64_t val) = 0;
-		virtual time& month(int64_t val) = 0;
-		virtual time& day(int64_t val) = 0;
-		virtual time& hour(int64_t val) = 0;
-		virtual time& minute(int64_t val) = 0;
-		virtual time& second(int64_t val) = 0;
-		virtual time& msecond(int64_t val) = 0;
+		virtual time &year(int64_t val) = 0;
+		virtual time &month(int64_t val) = 0;
+		virtual time &day(int64_t val) = 0;
+		virtual time &hour(int64_t val) = 0;
+		virtual time &minute(int64_t val) = 0;
+		virtual time &second(int64_t val) = 0;
+		virtual time &msecond(int64_t val) = 0;
 
 		virtual int64_t years() const = 0;
 		virtual int64_t months() const = 0;
@@ -45,15 +46,14 @@ namespace redtime
 
 	protected:
 		int64_t _values[7];
-		int64_t& _year = _values[0];
-		int64_t& _month = _values[1];
-		int64_t& _day = _values[2];
-		int64_t& _hour = _values[3];
-		int64_t& _minute = _values[4];
-		int64_t& _second = _values[5];
-		int64_t& _msecond = _values[6];
+		int64_t &_year = _values[0];
+		int64_t &_month = _values[1];
+		int64_t &_day = _values[2];
+		int64_t &_hour = _values[3];
+		int64_t &_minute = _values[4];
+		int64_t &_second = _values[5];
+		int64_t &_msecond = _values[6];
 	};
-
 
 	enum class realevel
 	{
@@ -81,18 +81,18 @@ namespace redtime
 		using time::msecond;
 		using time::second;
 		using time::year;
-		freetime(int year = 0, int month = 0, int day = 0, int hour = 0, int minute = 0, int second = 0, int msecond = 0) : time(year, month, day, hour, minute, second, msecond) {};
-		freetime(std::map<realevel, int64_t>&& timedefs);
-		freetime(const freetime&) = default;
-		freetime(freetime&&) = default;
+		freetime(int year = 0, int month = 0, int day = 0, int hour = 0, int minute = 0, int second = 0, int msecond = 0) : time(year, month, day, hour, minute, second, msecond){};
+		freetime(std::map<realevel, int64_t> &&timedefs);
+		freetime(const freetime &) = default;
+		freetime(freetime &&) = default;
 
-		freetime& year(const int64_t val);
-		freetime& month(const int64_t val);
-		freetime& day(const int64_t val);
-		freetime& hour(const int64_t val);
-		freetime& minute(const int64_t val);
-		freetime& second(const int64_t val);
-		freetime& msecond(const int64_t val);
+		freetime &year(const int64_t val);
+		freetime &month(const int64_t val);
+		freetime &day(const int64_t val);
+		freetime &hour(const int64_t val);
+		freetime &minute(const int64_t val);
+		freetime &second(const int64_t val);
+		freetime &msecond(const int64_t val);
 
 		int64_t years() const;
 		int64_t months() const;
@@ -102,23 +102,23 @@ namespace redtime
 		int64_t seconds() const;
 		int64_t mseconds() const;
 
-		freetime operator+(const freetime& t2) const;
-		freetime& operator+=(const freetime& t2);
-		freetime operator-(const freetime& t2) const;
-		freetime& operator-=(const freetime& t2);
-		freetime& add(const freetime& t2);
-		freetime& add(const freetime* pt2);
-		freetime& sub(const freetime& t2);
-		freetime& sub(const freetime* pt2);
+		freetime operator+(const freetime &t2) const;
+		freetime &operator+=(const freetime &t2);
+		freetime operator-(const freetime &t2) const;
+		freetime &operator-=(const freetime &t2);
+		freetime &add(const freetime &t2);
+		freetime &add(const freetime *pt2);
+		freetime &sub(const freetime &t2);
+		freetime &sub(const freetime *pt2);
 
-		realtime operator+(const realtime& real) const;
-
+		realtime operator+(const realtime &real) const;
 
 		void sim();
 
 		string str() const;
+		bool is_positive() const;
+		bool is_empty() const;
 	};
-
 
 	class realtime : time
 	{
@@ -131,16 +131,23 @@ namespace redtime
 		using time::second;
 		using time::year;
 
-		realtime(int year, int month = -1, int day = -1, int hour = -1, int minute = -1, int second = -1, int msecond = -1) : time(year, month, day, hour, minute, second, msecond) { set_timescale(); check(); }
+		realtime(int year, int month = -1, int day = -1, int hour = -1, int minute = -1, int second = -1, int msecond = -1) : time(year, month, day, hour, minute, second, msecond)
+		{
+			set_timescale();
+			check();
+		}
+		realtime(const realtime &) = default;
+		realtime(realtime &&) = default;
+
 		realevel get_timescale() const;
 
-		realtime& year(const int64_t val);
-		realtime& month(const int64_t val);
-		realtime& day(const int64_t val);
-		realtime& hour(const int64_t val);
-		realtime& minute(const int64_t val);
-		realtime& second(const int64_t val);
-		realtime& msecond(const int64_t val);
+		realtime &year(const int64_t val);
+		realtime &month(const int64_t val);
+		realtime &day(const int64_t val);
+		realtime &hour(const int64_t val);
+		realtime &minute(const int64_t val);
+		realtime &second(const int64_t val);
+		realtime &msecond(const int64_t val);
 
 		int64_t years() const;
 		int64_t months() const;
@@ -152,7 +159,6 @@ namespace redtime
 
 		int64_t stamp() const;
 
-
 		static int get_days_from_ym(int year, int month);
 		static bool isLeap(int year);
 
@@ -163,21 +169,21 @@ namespace redtime
 
 		void sim();
 
+		realtime &operator+=(const freetime &itv);
+		realtime operator+(const freetime &itv) const;
 
-		realtime& operator+=(const freetime& itv);
-		realtime operator+(const freetime& itv) const;
+		realtime &operator-=(const freetime &itv);
+		realtime operator-(const freetime &itv) const;
+		freetime operator-(const realtime &real) const;
 
-		realtime& operator-=(const freetime& itv);
-		realtime operator-(const freetime& itv) const;
-		freetime operator-(const realtime& real) const;
+		bool operator<(const realtime &real) const;
+		bool operator>(const realtime &real) const;
+		bool operator==(const realtime &real) const;
+		bool operator!=(const realtime &real) const;
+		bool operator<=(const realtime &real) const;
+		bool operator>=(const realtime &real) const;
 
-		bool operator<(const realtime& real) const;
-		bool operator>(const realtime& real) const;
-		bool operator==(const realtime& real) const;
-		bool operator!=(const realtime& real) const;
-		bool operator<=(const realtime& real) const;
-		bool operator>=(const realtime& real) const;
-
+		static std::vector<realtime> range(realtime, const realtime &, const freetime &);
 
 	private:
 		mutable realevel _timescale;
