@@ -1,11 +1,13 @@
-﻿#include <stdexcept>
+#include <stdexcept>
 #include <iostream>
 #include <climits>
 #include <cassert>
 #include "redtime.h"
 
-namespace redtime {
-	time& time::operator=(const time& t) {
+namespace redtime
+{
+	time& time::operator=(const time& t)
+	{
 		for (int i = 0; i < 7; i++)
 			_values[i] = t._values[i];
 		return *this;
@@ -14,45 +16,45 @@ namespace redtime {
 
 namespace redtime //@sk exp for freetime
 {
-	freetime::freetime(std::map<realevel, int64_t> &&timedefs)
+	freetime::freetime(std::map<realevel, int64_t>&& timedefs)
 	{
-		for (const auto &kv : timedefs)
+		for (const auto& kv : timedefs)
 		{
 			_values[static_cast<int>(kv.first)] = kv.second;
 		}
 	}
 
-	freetime &freetime::year(const int64_t val)
+	freetime& freetime::year(const int64_t val)
 	{
 		_year = val;
 		return *this;
 	}
-	freetime &freetime::month(const int64_t val)
+	freetime& freetime::month(const int64_t val)
 	{
 		_month = val;
 		return *this;
 	}
-	freetime &freetime::day(const int64_t val)
+	freetime& freetime::day(const int64_t val)
 	{
 		_day = val;
 		return *this;
 	}
-	freetime &freetime::hour(const int64_t val)
+	freetime& freetime::hour(const int64_t val)
 	{
 		_hour = val;
 		return *this;
 	}
-	freetime &freetime::minute(const int64_t val)
+	freetime& freetime::minute(const int64_t val)
 	{
 		_minute = val;
 		return *this;
 	}
-	freetime &freetime::second(const int64_t val)
+	freetime& freetime::second(const int64_t val)
 	{
 		_second = val;
 		return *this;
 	}
-	freetime &freetime::msecond(const int64_t val)
+	freetime& freetime::msecond(const int64_t val)
 	{
 		_msecond = val;
 		return *this;
@@ -138,63 +140,64 @@ namespace redtime //@sk exp for freetime
 		return -1;
 	}
 
-	freetime &freetime::operator+=(const freetime &t2)
+	freetime& freetime::operator+=(const freetime& t2)
 	{
 		for (int i = 0; i < 7; i++)
 			_values[i] += t2._values[i];
 		return *this;
 	}
 
-	freetime freetime::operator+(const freetime &t2) const
+	freetime freetime::operator+(const freetime& t2) const
 	{
 		freetime t6 = *this;
 		t6 += t2;
 		return t6;
 	}
 
-	realtime freetime::operator+(const realtime &real) const
+	realtime freetime::operator+(const realtime& real) const
 	{
 		return real + *this;
 	}
 
-	freetime &freetime::operator-=(const freetime &t2)
+	freetime& freetime::operator-=(const freetime& t2)
 	{
 		for (int i = 0; i < 7; i++)
 			_values[i] -= t2._values[i];
 		return *this;
 	}
 
-	freetime freetime::operator-(const freetime &t2) const
+	freetime freetime::operator-(const freetime& t2) const
 	{
 		freetime t6 = *this;
 		t6 -= t2;
 		return t6;
 	}
 
-	freetime& freetime::operator=(const freetime& frt) {
+	freetime& freetime::operator=(const freetime& frt)
+	{
 		time::operator=(frt);
 		return *this;
 	}
 
-	freetime &freetime::add(const freetime &t2)
+	freetime& freetime::add(const freetime& t2)
 	{
 		*this += t2;
 		return *this;
 	}
 
-	freetime &freetime::add(const freetime *pt2)
+	freetime& freetime::add(const freetime* pt2)
 	{
 		*this += *pt2;
 		return *this;
 	}
 
-	freetime &freetime::sub(const freetime &t2)
+	freetime& freetime::sub(const freetime& t2)
 	{
 		*this -= t2;
 		return *this;
 	}
 
-	freetime &freetime::sub(const freetime *pt2)
+	freetime& freetime::sub(const freetime* pt2)
 	{
 		*this -= *pt2;
 		return *this;
@@ -672,24 +675,26 @@ namespace redtime
 		return true;
 	}
 
-	realtime& realtime::operator=(const realtime& rt) {
+	realtime& realtime::operator=(const realtime& rt)
+	{
 		time::operator=(rt);
 		_timescale = rt._timescale;
 		return *this;
 	}
 
-
-	realtime realtime::rebase(realevel ts) const{
+	realtime realtime::rebase(realevel ts) const
+	{
 		/*
-		This function aims to change the timescale. For dimension reduction, just set the dropped dimension values to -1; 
+		This function aims to change the timescale. For dimension reduction, just set the dropped dimension values to -1;
 		For dimension elevetion, use default: month=1, day=1, hour/minute/second=0
 		*/
 		if (static_cast<int>(ts) < 0)
 			throw(std::runtime_error("(realtime::rebase) Error! cannot rebase to a non-concrete timescale!"));
 
 		realtime rt6 = *this;
-		static int v_default[7] = {1900,1,1,0,0,0,0};
-		if (static_cast<int>(ts) <= static_cast<int>(_timescale)) {
+		static int v_default[7] = { 1900, 1, 1, 0, 0, 0, 0 };
+		if (static_cast<int>(ts) <= static_cast<int>(_timescale))
+		{
 			//@sk dimensional reduction
 			for (int i = static_cast<int>(ts) + 1; i < 7; i++)
 				rt6._values[i] = -1;
@@ -703,25 +708,29 @@ namespace redtime
 		return rt6;
 	}
 
-	realtimeseries realtime::rebase2rts(realevel ts) const {
+	realtimeseries realtime::rebase2rts(realevel ts) const
+	{
 		if (static_cast<int>(ts) < 0)
 			throw(std::runtime_error("(realtime::rebase) Error! cannot rebase to a non-concrete timescale!"));
 
-		//std::cout << "(rebase2rts) [D] ts=" << static_cast<int>(ts) << std::endl;
+		// std::cout << "(rebase2rts) [D] ts=" << static_cast<int>(ts) << std::endl;
 
 		realtimeseries rts;
-		static int v_default[7] = { 1900,1,1,0,0,0,0 };
-		if (static_cast<int>(ts) == static_cast<int>(_timescale)) {
+		static int v_default[7] = { 1900, 1, 1, 0, 0, 0, 0 };
+		if (static_cast<int>(ts) == static_cast<int>(_timescale))
+		{
 			rts.add(*this);
 		}
-		else if (static_cast<int>(ts) < static_cast<int>(_timescale)) {
+		else if (static_cast<int>(ts) < static_cast<int>(_timescale))
+		{
 			//@sk dimensional reduction
 			realtime rt6 = *this;
 			for (int i = static_cast<int>(ts) + 1; i < 7; i++)
 				rt6._values[i] = -1;
 			rts.add(rt6);
 		}
-		else if (static_cast<int>(ts) > static_cast<int>(_timescale)) {
+		else if (static_cast<int>(ts) > static_cast<int>(_timescale))
+		{
 			switch (_timescale)
 			{
 			case redtime::realevel::YEAR:
@@ -758,8 +767,10 @@ namespace redtime
 
 }
 
-namespace redtime{
-	realtimeseries& realtimeseries::add(const realtime& rt) {
+namespace redtime
+{
+	realtimeseries& realtimeseries::add(const realtime& rt)
+	{
 		data.push_back(rt);
 		if (data.size() == 1)
 			_timescale = rt.get_timescale();
@@ -769,21 +780,22 @@ namespace redtime{
 		return *this;
 	}
 
-	realtimeseries& realtimeseries::add(const realtimeseries& rts) {
-		for (const realtime &rt : rts.data)
+	realtimeseries& realtimeseries::add(const realtimeseries& rts)
+	{
+		for (const realtime& rt : rts.data)
 			add(rt);
 		return *this;
 	}
 
-
-	realtimeseries& realtimeseries::pop() {
+	realtimeseries& realtimeseries::pop()
+	{
 		data.pop_back();
 		if (data.empty())
 			_timescale = realevel::UNKNOWN;
 		return *this;
 	}
 
-	realtimeseries::realtimeseries(const realtime &real1, const realtime &real2, const freetime &frt)
+	realtimeseries::realtimeseries(const realtime& real1, const realtime& real2, const freetime& frt)
 	{
 		/*
 		This static function aims to generate a vector of realtime based on start, end, and delta time
@@ -797,12 +809,11 @@ namespace redtime{
 		if (real1.get_timescale() != real2.get_timescale())
 			throw(std::runtime_error("(redtime::realtimeseries::init) Error! realtimeseries only works for realtime objects with the same timescale!"));
 
-
-		//std::vector<realtime> rstlist;
-		// std::cout << "start loop" << std::endl;
+		// std::vector<realtime> rstlist;
+		//  std::cout << "start loop" << std::endl;
 		realtime realT = real1;
 
-		//interval = frt;
+		// interval = frt;
 		_timescale = real1.get_timescale();
 
 		while (realT <= real2)
@@ -816,27 +827,41 @@ namespace redtime{
 		// std::cout << rstlist[0].str() << std::endl;
 	}
 
-
-	realtimeseries realtimeseries::rebase(realevel ts, bool unique) {
-		if (static_cast<int>(ts) < 0)
+	//@ <function>
+	//@  This function aims to do the dimension-reduction or dimension-elevation along time dimensions, i.e., YMdhms, for a series of realtimes (class realtimeseries)
+	//@ <param name="ts" meaning="target timescale" desc="target timescale, can be any of one from realevel::YEAR to realevel::SECOND"/>
+	//@ <param name="unique" meaning="unique or not for results" desc="if set to true, repeated element in dimension-reduction operation will be ignored, since no repeated values will be created in dimension-elevation operation only if there exists the same realtimes in the original realtimeseries, which we may not want to alter"/>
+	//@ <return decs="A new realtimeseries object"/>
+	realtimeseries realtimeseries::rebase(realevel ts, bool unique)
+	{
+		//@ prepare
+		//@ prepare.errorDetect exclude un-desgined conditions
+		if (static_cast<int>(ts) < 0) //@branch not valid timescale
 			throw(std::runtime_error("(realtimeseries::rebase) Error! cannot rebase to a non-concrete timescale!"));
 
+		//@ prepare.varDef
 		realtimeseries rts;
-		static int v_default[7] = { 1900,1,1,0,0,0,0 };
+		static int v_default[7] = { 1900, 1, 1, 0, 0, 0, 0 };
 		realtime rtT;
-		if (static_cast<int>(ts) <= static_cast<int>(_timescale)) {
 
-			for (const realtime& rt : data) {
-				rtT = rt.rebase(ts);
-				if (!unique || (unique && !rts.data.empty() && rtT != rts.data.back()))
+		//@ core handle different conditions based on ts and this->_timescale
+		if (static_cast<int>(ts) <= static_cast<int>(_timescale)) //@branch ts <= _timescale, i.e., dimension reduction operation, this is simple
+		{
+			//@code.DRP loop each realtime, rebase & add
+			for (const realtime& rt : data)
+			{
+				rtT = rt.rebase(ts); //@ exp drp for one realtime.
+				if (!unique || (unique && !rts.data.empty() && rtT != rts.data.back())) //@branch exclude repeated realtime in unique=true
 					rts.add(rtT);
 			}
 		}
-		else
+		else //@branch ts > _timescale, i.e., dimension elevation operation, the heavy processing code is put in realtime::rebase2rts, See <function:realtime::rebase2rts>
 		{
+			//@core.DEP The logic is simple, i.e., add all corresponding rebase-DEP results for each element
 			for (const realtime& rt : data)
 				rts.add(rt.rebase2rts(ts));
 		}
+		//@return
 		return rts;
 	}
 }

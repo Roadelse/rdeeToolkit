@@ -21,3 +21,7 @@ add_subdirectory(redtime)
 
 enable_testing()
 add_subdirectory(test)
+
+add_custom_target(copy_headers ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
+)
