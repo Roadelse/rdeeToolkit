@@ -44,6 +44,8 @@ namespace redtime
 
 		virtual string str() const = 0;
 
+		time& operator=(const time& t);
+
 	protected:
 		int64_t _values[7];
 		int64_t &_year = _values[0];
@@ -69,6 +71,7 @@ namespace redtime
 	};
 
 	class realtime;
+	class realtimeseries;
 
 	class freetime : public time
 	{
@@ -118,6 +121,8 @@ namespace redtime
 		string str() const;
 		bool is_positive() const;
 		bool is_empty() const;
+
+		freetime& operator=(const freetime& frt);
 	};
 
 	class realtime : time
@@ -136,6 +141,7 @@ namespace redtime
 			set_timescale();
 			check();
 		}
+		realtime() = default;
 		realtime(const realtime &) = default;
 		realtime(realtime &&) = default;
 
@@ -183,12 +189,43 @@ namespace redtime
 		bool operator<=(const realtime &real) const;
 		bool operator>=(const realtime &real) const;
 
-		static std::vector<realtime> range(realtime, const realtime &, const freetime &);
+		realtime& operator=(const realtime&);
+
+		//static std::vector<realtime> range(realtime, const realtime &, const freetime &);
+
+		realtime rebase(realevel ts) const;
+		realtimeseries rebase2rts(realevel ts) const;
 
 	private:
 		mutable realevel _timescale;
 		void check(realevel ts = realevel::ALL);
 		void set_timescale() const;
+	};
+
+	class realtimeseries {
+	public:
+		//@sk fields
+		//freetime interval;
+		std::vector<realtime> data;
+
+		//@sk methods
+		//@sk methods.init
+		realtimeseries() = default;
+		realtimeseries(const realtime& real1, const realtime& real2, const freetime& frt);
+		//@sk methods.final
+		//~realtimeseries() { data.clear(); };  // unnecessary
+
+		realevel get_timescale() const { return _timescale; };
+
+
+		//@sk methods.??
+		realtimeseries& add(const realtime&);
+		realtimeseries& add(const realtimeseries&);
+		realtimeseries& pop();
+		realtimeseries rebase(realevel, bool unique = true);
+
+	private:
+		realevel _timescale = realevel::UNKNOWN;
 	};
 
 }

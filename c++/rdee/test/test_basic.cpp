@@ -161,21 +161,64 @@ namespace Test_redtime
 		CHECK(realtime(3, 12, 4, 10).stamp() == 1067 * 24 + 10);
 	}
 
-	TEST_CASE("testing realtime::range")
+	TEST_CASE("testing realtime::rebase") {
+		realtime real1(2014);
+		realtime real2 = real1.rebase(realevel::MONTH);
+		REQUIRE(real2.get_timescale() == realevel::MONTH);
+		REQUIRE(real2.str() == "2014/1");
+		realtime real3 = real2.rebase(realevel::HOUR);
+		REQUIRE(real3.get_timescale() == realevel::HOUR);
+		REQUIRE(real3.str() == "2014/1/1 0");
+
+		realtimeseries rts1 = real1.rebase2rts(realevel::MONTH);
+		REQUIRE(rts1.data.size() == 12);
+		REQUIRE(rts1.get_timescale() == realevel::MONTH);
+		REQUIRE(rts1.data.front().str() == "2014/1");
+		REQUIRE(rts1.data[5].str() == "2014/6");
+		REQUIRE(rts1.data.back().str() == "2014/12");
+
+		realtimeseries rts2 = real1.rebase2rts(realevel::HOUR);
+		REQUIRE(rts2.data.size() == 8760);
+		REQUIRE(rts2.get_timescale() == realevel::HOUR);
+		REQUIRE(rts2.data.front().str() == "2014/1/1 0");
+		REQUIRE(rts2.data.back().str() == "2014/12/31 23");
+
+		realtime real4(2024, 2, 6);
+		realtimeseries rts3 = real4.rebase2rts(realevel::SECOND);
+		REQUIRE(rts3.data.size() == 86400);
+		REQUIRE(rts3.get_timescale() == realevel::SECOND);
+		REQUIRE(rts3.data.front().str() == "2024/2/6 0:0:0");
+		REQUIRE(rts3.data.back().str() == "2024/2/6 23:59:59");
+	}
+
+	TEST_CASE("testing realtimeseries::rebase") {
+		realtimeseries rts1(realtime(2014), realtime(2024), freetime(1));
+		realtimeseries rts1_rb = rts1.rebase(realevel::MONTH);
+		REQUIRE(rts1_rb.data.size() == 132);
+
+		realtimeseries rts1_rb2 = rts1.rebase(realevel::DAY);
+		REQUIRE(rts1_rb2.data.size() == 4018);
+		REQUIRE(rts1_rb2.data.front().str() == "2014/1/1");
+		REQUIRE(rts1_rb2.data.back().str() == "2024/12/31");
+
+	}
+
+
+	TEST_CASE("testing realtimeseries")
 	{
-		std::vector<realtime> list1 = realtime::range(realtime(2014), realtime(2024), freetime(1));
-		REQUIRE(list1.size() == 11);
-		REQUIRE(list1[0].str() == "2014");
-		REQUIRE(list1[10].str() == "2024");
-		REQUIRE(list1[9].str() == "2023");
+		realtimeseries rts1(realtime(2014), realtime(2024), freetime(1));
+		REQUIRE(rts1.data.size() == 11);
+		REQUIRE(rts1.data[0].str() == "2014");
+		REQUIRE(rts1.data[10].str() == "2024");
+		REQUIRE(rts1.data[9].str() == "2023");
 
-		REQUIRE_THROWS(realtime::range(realtime(2014), realtime(2024), freetime(0, 1)));
+		REQUIRE_THROWS(realtimeseries(realtime(2014), realtime(2024), freetime(0, 1)));
 
-		std::vector<realtime> list2 = realtime::range(realtime(2024, 01, 01), realtime(2024, 12, 31), freetime(0, 0, 1));
-		REQUIRE(list2.size() == 366);
-		REQUIRE(list2[0].str() == "2024/1/1");
-		REQUIRE(list2[59].str() == "2024/2/29");
-		REQUIRE(list2.back().str() == "2024/12/31");
+		realtimeseries rts2 = realtimeseries(realtime(2024, 01, 01), realtime(2024, 12, 31), freetime(0, 0, 1));
+		REQUIRE(rts2.data.size() == 366);
+		REQUIRE(rts2.data[0].str() == "2024/1/1");
+		REQUIRE(rts2.data[59].str() == "2024/2/29");
+		REQUIRE(rts2.data.back().str() == "2024/12/31");
 	}
 
 }
