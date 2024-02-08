@@ -1,6 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <stdexcept>
-#include "headers/doctest.h"
+#include "doctest/doctest.h"
 #include "redtime.h"
 
 using namespace redtime;

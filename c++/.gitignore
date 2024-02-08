@@ -1,2 +1,4 @@
 cbuild*
 out/
+
+copy-modules.sh

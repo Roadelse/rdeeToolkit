@@ -9,8 +9,19 @@ cmake_minimum_required (VERSION 3.8)
 #  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 #endif()
 
-project ("rdee")
+project ("rdee-cpp" VERSION 0.1 LANGUAGES CXX)
+
+
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+include(rdee.checksys)
+include(rdee.python)
+
+add_subdirectory(thirdparty)
+
+return()
+
 include_directories(include)
+
 
 # 将源代码添加到此项目的可执行文件。
 #add_executable (rdee "rdee.cpp" "rdee.h")
