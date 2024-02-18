@@ -36,6 +36,13 @@ function rexit(){
         return
     fi
 }
+
+function function_exists() {
+    # this function aims to check if a named function exists
+    # [-] Usage
+    #    ● if function_exists echo_blue; then ecoh 2333; fi
+    declare -f "$1" > /dev/null
+}
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
