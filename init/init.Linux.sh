@@ -11,38 +11,45 @@
 # by Roadelse                                             #
 #                                                         #
 # 2024-01-08    created                                   #
+# 2024-02-20    remove PS1 settings and re-organize via   #
+#               CodeSK, update profile processing         #
 ###########################################################
 
+#@ <prepare>
+#@ <.depVars>  dependent variables
 myDir=$(cd $(dirname "${BASH_SOURCE[0]}") && readlink -f .)
+curDir=$PWD
 
-# <L1> resolve argument
-# ...
-# ...
-# ...
+#@ <.pre-check>
+#@ <..python>
+if [[ -z `which python3 2>/dev/null` ]]; then
+	echo '\033[31m'"Error! Cannot find python interpreter"'\033[0m'
+	exit 200
+fi
+
+#@ <.arguments>
+#@ <..default>
 binary_dir=${PWD}/bin
-load_script=${PWD}/load.rdeeToolkit.sh
+setenvfile=${PWD}/load.rdeeToolkit.sh
 modulefile=${PWD}/rdeeToolkit
 profile=
+#@ <..resolve>
 while getopts "b:s:m:p:" arg; do
     case $arg in
     b)
         binary_dir=$OPTARG;;
     s)
-        load_script=$OPTARG;;
+        setenvfile=$OPTARG;;
     m)
-        modulefile=$OPTARG;;
+        modulefile=$OPTARG;; 
     p)
         profile=$OPTARG;;
     esac
 done
 
-# [Hiden] use Tmod for compatiability
-# if [[ ! $modulefile =~ "."lua$ ]]; then
-#     $modulefile=${modulefile}.lua
-# fi
 
-
-cat << EOF > $load_script
+#@ <.header> create header for setenv and module files
+cat << EOF > $setenvfile
 #!/bin/bash
 
 EOF
@@ -53,7 +60,8 @@ cat << EOF > $modulefile
 EOF
 
 
-# <L1> handle binary (executable)
+#@ <core>
+# <.binary> organize executable
 mkdir -p $binary_dir/temp && cd $_
 find $myDir/../bin -type f \( ! -perm /u=x \) -exec chmod +x {} \;
 find $myDir/../bin -type f -exec ln -sf {} . \;
@@ -75,7 +83,8 @@ cd ..
 mv -f temp/* .
 rmdir temp
 
-cat << EOF >> $load_script
+#@ <..update-sm>
+cat << EOF >> $setenvfile
 # >>>>>>>>>>>>>>>>> rdee executable
 export PATH=${binary_dir}:\$PATH
 EOF
@@ -84,13 +93,13 @@ cat << EOF >> $modulefile
 # >>>>>>>>>>>>>>>>> rdee executable
 prepend-path PATH ${binary_dir}
 EOF
-cd $myDir
+# cd $myDir
 
 
-# <L1> python
-# maybe check python version??
+#@ <.subprojs>
+# <..python> [note|maybe check python version??]
 pylib_path=`realpath ${PWD}/../python`
-cat << EOF >> $load_script
+cat << EOF >> $setenvfile
 # >>>>>>>>>>>>>>>>> rdee python library
 export PYTHONPATH=${pylib_path}:\$PYTHONPATH
 export pipsrc1=https://pypi.tuna.tsinghua.edu.cn/simple
@@ -103,11 +112,11 @@ setenv pipsrc1 https://pypi.tuna.tsinghua.edu.cn/simple
 EOF
 
 
-# <L1> bash
+# <..bash>
 shlib_path=`realpath ${PWD}/../bash`
-# >>>>>>>>>>>>>>>>> rdee python library
 export PATH=${shlib_path}:$PATH
-cat << EOF >> $load_script
+
+cat << EOF >> $setenvfile
 # >>>>>>>>>>>>>>>>> rdee bash library
 export PATH=${shlib_path}:\$PATH
 EOF
@@ -118,9 +127,10 @@ prepend-path PATH ${shlib_path}
 EOF
 
 
-# <L1> powershell
+# <..powershell>
 pwsh_module_path=`realpath ${PWD}/../powershell`
-cat << EOF >> $load_script
+
+cat << EOF >> $setenvfile
 # >>>>>>>>>>>>>>>>> rdee powershell library
 export PSModulePath=${pwsh_module_path}:\$PSModulePath
 EOF
@@ -131,32 +141,11 @@ prepend-path PSModulePath ${pwsh_module_path}
 EOF
 
 
+# <..alias>
+cat << EOF >> $setenvfile
 
-# <L1> alias
-cat << EOF >> $load_script
-
-# >>>>>>>>>>>>>>>>> system basic & shortcut for builti-in commands
-alias ..='cd ..'
-alias ...='cd ../..'
-
-alias rp='realpath'
-alias ls='ls --color=auto'
-alias ll='ls -alFh'
-alias la='ls -A'
-
-alias pso='ps -o ruser=userForLongName -e -o pid,ppid,c,stime,tty,time,cmd'
-alias psu='ps -u \`whoami\` -o pid,tty,time,cmd'
-alias du1='du --max-depth=1 -h'
-alias dv='dirsv -v'
-alias topu='top -u \`whoami\`'
 alias g='source g2s'
 alias cdd='source cdDir'
-alias gf='gfortran'
-alias cd0='cd \`readlink -f .\`'
-
-
-alias web='echo "plz copy : export http_proxy=127.0.0.1:port; export https_proxy=127.0.0.1:port"'
-alias unweb='unset https_proxy; unset http_proxy'
 
 # >>>>>>>>>>>>>>>>> project based
 export reSG_dat=${binary_dir}/.reSG.dat
@@ -168,26 +157,8 @@ EOF
 
 cat << EOF >> $modulefile
 
-set-alias rp realpath
-
-set-alias ll {ls -alF}
-set-alias ls {ls --color=auto}
-set-alias la {ls -A}
-
-set-alias pso {ps -o ruser=userForLongName -e -o pid,ppid,c,stime,tty,time,cmd}
-set-alias psu {ps -u \`whoami\` -o pid,tty,time,cmd}
-set-alias grep {grep --color=auto}
-set-alias du1 {du --max-depth=1 -h}
-set-alias dv {dirs -v}
-set-alias topu {top -u \`whoami\`}
 set-alias g {source g2s}
 set-alias cdd {source cdDir}
-set-alias gf {gfortran}
-set-alias cd0 {cd \`readlink -f .\`}
-
-
-set-alias web {echo "plz copy : export http_proxy=127.0.0.1:port; export https_proxy=127.0.0.1:port"}
-set-alias unweb {unset https_proxy; unset http_proxy}
 
 # >>>>>>>>>>>>>>>>> project based
 setenv reSG_dat ${binary_dir}/.reSG.dat
@@ -197,31 +168,37 @@ set-alias iR {source $shlib_path/rdee.sh}
 
 EOF
 
-
-# <L1> handle content written to bash profiles
-if [[ -z $profile ]]; then
-    read -p "target bash profile path to be added or just [Enter]: " profile
-    if [[ -z $profile ]]; then
-        exit 0
+#@ <post> modify profile
+cd $curDir
+set -e
+if [[ -n $profile ]]; then
+    read -p "profile detected, which way to init rdeeToolkit? [setenv|module] default:module " sm
+    if [[ -z $sm ]]; then
+        sm=module
     fi
-fi
 
-profile=`eval echo $profile`
-
-if [[ -n `grep -P '# >>* \[rdeeToolkit\]' $profile 2>/dev/null` ]]; then
-    sed -i '/^# >* \[rdeeToolkit\]/,/^$/c\
-# >>>>>>>>>>>>>>>>>>>>>>>>>>> [rdeeToolkit] set PS1\
-export PS1='\''\\033[01;32m\\u@\\h\\033[0m:\\033[01;34m\\W\\033[0m$ '\''\
-' $profile
-else
-    if [[ ! -e $profile ]]; then   #>- added @2024-01-05 22:44:58
-        echo -e "#!/bin/bash\n\n" > $profile
-    fi
-        
-    cat << EOF >> $profile
-
-# >>>>>>>>>>>>>>>>>>>>>>>>>>> [rdeeToolkit] set PS1
-export PS1='\033[01;32m\\u@\\h\033[0m:\033[01;34m\\W\033[0m$ '
+    # echo "sm=$sm"
+    
+    if [[ $sm == "module" ]]; then
+        moduledir=$(dirname $modulefile)
+        cat << EOF >> .temp
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> [rdeeToolkit] init
+module use $moduledir
+module load rdeeToolkit
 
 EOF
+        python3 $myDir/../bin/io/txtop.ra-nlines.py $profile .temp
+        rm -f .temp
+    elif [[ $sm == "setenv" ]]; then
+        cat << EOF >> .temp
+# >>>>>>>>>>>>>>>>>>>>>>>>>>> [rdeeToolkit] init
+source $setenvfile
+
+EOF
+        python3 $myDir/../bin/io/txtop.ra-nlines.py $profile .temp
+        rm -f .temp
+    else
+        echo "Unknown input: $sm"
+        exit 200
+    fi
 fi
