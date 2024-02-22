@@ -22,12 +22,20 @@ import sys
 from typing import Optional
 # import argparse  #@ exp use direct arguments now @2024-02-19 17:24:05
 
-headerStock: dict[str, str] = {
+#@ prepare 
+#@ .version-check
+if sys.version_info < (3, 6):
+    print("This script requires Python version 3.6 or higher")
+    sys.exit(1)
+
+#@ .global-variables
+headerStock = {
     ".py": "#!/usr/bin/env python3\n# coding=utf-8\n\n",
     ".sh": "#!/bin/bash\n\n",
     "tmod": "#%Module1.0\n\n" 
 }
 
+#@ core
 def ra_nlines(basefile: str, rafile: str, cheader: Optional[str] = None) -> None:
     #@ <prepare>
     #@ <.pre-check>
@@ -89,6 +97,7 @@ def ra_nlines(basefile: str, rafile: str, cheader: Optional[str] = None) -> None
     return
 
 
+#@ utest
 def utest():
     with open("base.py", "w") as f:
         f.write("""123
@@ -106,7 +115,7 @@ def utest():
         os.remove("base.py")
         os.remove("ra.py")
         
-
+#@ entry
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser(description="""arguments for text-opeartion: replace/append multiple lines""")
 
