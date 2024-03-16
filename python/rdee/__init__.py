@@ -26,12 +26,12 @@ if os.getenv("reStrict") or os.getenv("reStrict_package_rdee"):
 
 logger = getLogger("rdee")
 
-# from ._array import *
+from ._array import *
 # from ._time import *
 # from ._geo import *
 # from ._io import *
 # from ._code import *
-# from ._research import *
+from ._research import *
 # from ._win import *
 # from ._plot import *
 # from ._string import *

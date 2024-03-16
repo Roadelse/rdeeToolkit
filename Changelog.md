@@ -4,6 +4,9 @@
 *rev-order-recursive*
 
 # v2024
+## To-Be-Donw
++ (×) 2024-02-24  (bin/wln) add windows symlink support, which performs differently in windows compared to wsl `ln -s` 
+
 ## 2024-01
 + (√) 2024-01-18   (init/) Bug fix: cd0 alias, escape char \`
 
