@@ -33,6 +33,6 @@ from ._array import *
 # from ._code import *
 from ._research import *
 # from ._win import *
-# from ._plot import *
+from ._plot import *
 # from ._string import *
 # from ._oop import *
