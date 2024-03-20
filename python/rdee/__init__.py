@@ -14,9 +14,11 @@ Author:
     Roadelse - roadelse@qq.com
 """
 
+print("----------------------------11111")
+
 from ._x_logging import *
 from ._o_basefunc import singleton
-from ._o_globalstate import *
+import _o_globalstate as ogs
 from ._x_os import *
 from ._x_string import String
 
@@ -24,7 +26,8 @@ import os
 if os.getenv("reStrict") or os.getenv("reStrict_package_rdee"):
     strict = True
 
-logger = getLogger("rdee")
+ogs.logger = getLogger("rdee")
+
 
 from ._array import *
 # from ._time import *
@@ -32,7 +35,7 @@ from ._array import *
 # from ._io import *
 # from ._code import *
 from ._research import *
-# from ._win import *
+from ._x_win import *
 from ._plot import *
 # from ._string import *
 # from ._oop import *

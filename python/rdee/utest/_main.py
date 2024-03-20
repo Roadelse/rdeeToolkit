@@ -431,6 +431,23 @@ class Test_array(unittest.TestCase):
         self.assertListEqual([2,0,6,4,10,8,14,12,18,16,22,20], arr1_drp.reshape(-1).tolist())  #@sk reference list is set manually
 
 
+class Test_win(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def tearDown(self) -> None:
+        pass
+
+    def test_win2wsl(self) -> None:
+        from  .._x_win import path_win2wsl
+        self.assertEqual("/mnt/d/recRoot/Roadelse/Life/Daily", path_win2wsl(r"D:\recRoot\Roadelse\Life\Daily"))
+        self.assertEqual(r"D:\recRoot\Roadelse\Life\Daily", path_win2wsl(r"/mnt/d/recRoot/Roadelse/Life/Daily"))
+        
+        with self.assertRaises(Exception):
+            path_win2wsl(r"D:\recRoot\Roadelse\Life\Daily\ababa", require_existed=True)
+            path_win2wsl(r"/mnt/g/recRoot/Roadelse/Life/Daily", require_existed=True)
+
+
 def run(targets: list[str]) -> None:
     """
     Runner for the test cases & test functions in this utest packaghe
