@@ -439,13 +439,14 @@ class Test_win(unittest.TestCase):
         pass
 
     def test_win2wsl(self) -> None:
-        from  .._x_win import path_win2wsl
+        from  rdee import path_win2wsl, path_wsl2win
         self.assertEqual("/mnt/d/recRoot/Roadelse/Life/Daily", path_win2wsl(r"D:\recRoot\Roadelse\Life\Daily"))
-        self.assertEqual(r"D:\recRoot\Roadelse\Life\Daily", path_win2wsl(r"/mnt/d/recRoot/Roadelse/Life/Daily"))
+        self.assertEqual(r"D:\recRoot\Roadelse\Life\Daily", path_wsl2win(r"/mnt/d/recRoot/Roadelse/Life/Daily"))
         
         with self.assertRaises(Exception):
             path_win2wsl(r"D:\recRoot\Roadelse\Life\Daily\ababa", require_existed=True)
-            path_win2wsl(r"/mnt/g/recRoot/Roadelse/Life/Daily", require_existed=True)
+        with self.assertRaises(Exception):
+            path_wsl2win(r"/mnt/g/recRoot/Roadelse/Life/Daily", require_existed=True)
 
 
 def run(targets: list[str]) -> None:

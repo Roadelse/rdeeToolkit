@@ -14,28 +14,33 @@ Author:
     Roadelse - roadelse@qq.com
 """
 
-print("----------------------------11111")
-
-from ._x_logging import *
-from ._o_basefunc import singleton
-import _o_globalstate as ogs
-from ._x_os import *
-from ._x_string import String
+print("----------------------------rdee: __init__.py")
 
 import os
+
+
+from rdee import _o_globalstate as ogs
+
 if os.getenv("reStrict") or os.getenv("reStrict_package_rdee"):
-    strict = True
+    ogs.strict = True
 
-ogs.logger = getLogger("rdee")
+from ._x_logging import getLogger, getAllHandlers, has_stdout_handler
+
+if ogs.logger is None:
+    ogs.logger = getLogger("rdee")
+
+from ._o_basefunc import singleton
+from ._x_os import rmrf
+from ._x_string import String
+from ._x_win import createShortCut, GetShortCut, path_win2wsl, path_wsl2win
 
 
-from ._array import *
+# from ._array import *
 # from ._time import *
 # from ._geo import *
 # from ._io import *
 # from ._code import *
-from ._research import *
-from ._x_win import *
-from ._plot import *
+# from ._research import *
+# from ._plot import *
 # from ._string import *
 # from ._oop import *

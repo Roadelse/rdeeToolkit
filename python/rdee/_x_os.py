@@ -10,12 +10,12 @@ import os
 import os.path
 import shutil
 
-from . import strict
+from rdee import _o_globalstate as ogs
 
 
 def rmrf(directory: str, use_strict: bool = False) -> None:
     #@sk prepare check if use strict
-    if strict:
+    if ogs.strict:
         use_strict = True
 
     #@sk boundary if directory doesn't exist
