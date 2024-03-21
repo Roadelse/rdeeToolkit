@@ -29,9 +29,9 @@ fi
 
 #@ <.arguments>
 #@ <..default>
-binary_dir=${PWD}/bin
-setenvfile=${PWD}/load.rdeeToolkit.sh
-modulefile=${PWD}/rdeeToolkit
+binary_dir=${curDir}/bin
+setenvfile=${curDir}/load.rdeeToolkit.sh
+modulefile=${curDir}/rdeeToolkit
 profile=
 #@ <..resolve>
 while getopts "b:s:m:p:" arg; do
@@ -98,7 +98,7 @@ EOF
 
 #@ <.subprojs>
 # <..python> [note|maybe check python version??]
-pylib_path=`realpath ${PWD}/../python`
+pylib_path=`realpath ${curDir}/../python`
 cat << EOF >> $setenvfile
 # >>>>>>>>>>>>>>>>> rdee python library
 export PYTHONPATH=${pylib_path}:\$PYTHONPATH
@@ -113,7 +113,7 @@ EOF
 
 
 # <..bash>
-shlib_path=`realpath ${PWD}/../bash`
+shlib_path=`realpath ${curDir}/../bash`
 export PATH=${shlib_path}:$PATH
 
 cat << EOF >> $setenvfile
@@ -128,7 +128,7 @@ EOF
 
 
 # <..powershell>
-pwsh_module_path=`realpath ${PWD}/../powershell`
+pwsh_module_path=`realpath ${curDir}/../powershell`
 
 cat << EOF >> $setenvfile
 # >>>>>>>>>>>>>>>>> rdee powershell library

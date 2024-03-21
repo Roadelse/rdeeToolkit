@@ -14,8 +14,6 @@ Author:
     Roadelse - roadelse@qq.com
 """
 
-print("----------------------------rdee: __init__.py")
-
 import os
 
 
@@ -32,7 +30,7 @@ if ogs.logger is None:
 from ._o_basefunc import singleton
 from ._x_os import rmrf
 from ._x_string import String
-from ._x_win import createShortCut, GetShortCut, path_win2wsl, path_wsl2win
+from ._x_win import createShortCut, GetShortCut, path2wsl, path2win
 
 
 # from ._array import *

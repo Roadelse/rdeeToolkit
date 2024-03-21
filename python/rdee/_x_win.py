@@ -46,19 +46,32 @@ def GetShortCut(shortcut):
     return shell.CreateShortCut(shortcut).Targetpath
 
 
-#@ func::path_win2wsl
-def path_win2wsl(path_win: str, require_existed: bool = False):
+#@ func::path2wsl
+def path2wsl(path: str, require_existed: bool = False):
     from ._o_globalstate import logger
 
     # print(logger)
     # print(id(logger))
 
-    if not re.match(r'[C-N]:\\', path_win):
-        logger.error(f"The arg:path_wwin is not a windows path: {path_win}")
+    if re.match(r'/mnt/[a-z]', path):
+        if require_existed:
+            if platform.system() == "Linux":
+                if not os.path.exists(path):
+                    logger.error(f"require_existed=True, but target path doesn't exist! {path}")
+                    raise RuntimeError
+            else:
+                path_win = path2win(path)
+                if not os.path.exists(path_win):
+                    logger.error(f"require_existed=True, but target path doesn't exist! {path_win}")
+                    raise RuntimeError
+        return path
+
+    if not re.match(r'[C-N]:\\', path):
+        logger.error(f"The arg:path is neither a win path, nor a wsl path: {path}")
         raise RuntimeError
 
-    strT = path_win[3:].replace('\\', '/')
-    path_wsl = f"/mnt/{path_win[0].lower()}/{strT}"
+    strT = path[3:].replace('\\', '/')
+    path_wsl = f"/mnt/{path[0].lower()}/{strT}"
 
     if require_existed:
         if platform.system() == "Linux":
@@ -66,29 +79,41 @@ def path_win2wsl(path_win: str, require_existed: bool = False):
                 logger.error(f"require_existed=True, but target path doesn't exist! {path_wsl}")
                 raise RuntimeError
         else:
-            if not os.path.exists(path_win):
-                logger.error(f"require_existed=True, but target path doesn't exist! {path_win}")
+            if not os.path.exists(path):
+                logger.error(f"require_existed=True, but target path doesn't exist! {path}")
                 raise RuntimeError
 
     return path_wsl
 
 
-#@ func::path_wsl2win
-def path_wsl2win(path_wsl: str, require_existed: bool = False):
+#@ func::path2win
+def path2win(path: str, require_existed: bool = False):
     from ._o_globalstate import logger
 
-    if not re.match(r'/mnt/[a-z]/', path_wsl):
-        logger.error(f"The arg:path_wsl is not a wsl path for windows: {path_wsl}")
-        raise RuntimeError
-    
+    if re.match(r"[A-Z]:\\", path):
+        if require_existed:
+            if platform.system() == "Linux":
+                path_wsl = path2wsl(path)
+                if not os.path.exists(path_wsl):
+                    logger.error(f"require_existed=True, but target path doesn't exist! {path_wsl}")
+                    raise RuntimeError
+            else:
+                if not os.path.exists(path):
+                    logger.error(f"require_existed=True, but target path doesn't exist! {path}")
+                    raise RuntimeError
+        return path
 
-    disk = path_wsl[5]
-    path_win = disk.upper() + ":\\" + path_wsl[7:].replace('/', '\\')
+    if not re.match(r'/mnt/[a-z]/', path):
+        logger.error(f"The arg:path is neither a win path, nor a wsl path: {path}")
+        raise RuntimeError
+
+    disk = path[5]
+    path_win = disk.upper() + ":\\" + path[7:].replace('/', '\\')
     
     if require_existed:
         if platform.system() == "Linux":
-            if not os.path.exists(path_wsl):
-                logger.error(f"require_existed=True, but target path doesn't exist! {path_wsl}")
+            if not os.path.exists(path):
+                logger.error(f"require_existed=True, but target path doesn't exist! {path}")
                 raise RuntimeError
         else:
             if not os.path.exists(path_win):

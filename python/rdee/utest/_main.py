@@ -7,7 +7,6 @@ import os.path
 import unittest
 import inspect
 
-import numpy as np
 
 
 # ................. project lib
@@ -421,6 +420,7 @@ class Test_array(unittest.TestCase):
                 test basic mapping
         """
 
+        import numpy as np  #@ wait!! to be optimized, in checking if with numpy or not
         from .._x_array import Array, DRPC  #@sk import
 
         arr1 = np.arange(24).reshape((2,3,4))
@@ -438,15 +438,19 @@ class Test_win(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    def test_win2wsl(self) -> None:
-        from  rdee import path_win2wsl, path_wsl2win
-        self.assertEqual("/mnt/d/recRoot/Roadelse/Life/Daily", path_win2wsl(r"D:\recRoot\Roadelse\Life\Daily"))
-        self.assertEqual(r"D:\recRoot\Roadelse\Life\Daily", path_wsl2win(r"/mnt/d/recRoot/Roadelse/Life/Daily"))
+    def test_path2ww(self) -> None:
+        from  rdee import path2wsl, path2win
+        self.assertEqual("/mnt/d/recRoot/Roadelse/Life/Daily", path2wsl(r"D:\recRoot\Roadelse\Life\Daily"))
+        self.assertEqual(r"D:\recRoot\Roadelse\Life\Daily", path2win(r"/mnt/d/recRoot/Roadelse/Life/Daily"))
         
         with self.assertRaises(Exception):
-            path_win2wsl(r"D:\recRoot\Roadelse\Life\Daily\ababa", require_existed=True)
+            path2wsl(r"D:\recRoot\Roadelse\Life\Daily\ababa", require_existed=True)
         with self.assertRaises(Exception):
-            path_wsl2win(r"/mnt/g/recRoot/Roadelse/Life/Daily", require_existed=True)
+            path2win(r"/mnt/g/recRoot/Roadelse/Life/Daily", require_existed=True)
+        with self.assertRaises(Exception):
+            path2win(r"D:\recRoot\Roadelse\Life\Daily\ababa", require_existed=True)
+        with self.assertRaises(Exception):
+            path2wsl(r"/mnt2/d/recRoot/Roadelse/Life/Daily", require_existed=True)
 
 
 def run(targets: list[str]) -> None:
