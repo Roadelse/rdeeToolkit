@@ -1,9 +1,22 @@
 
+param(
+  [string]$from,
+  [string]$to,
+  [Alias("s")]
+  [switch]$shortcut
+)
+
+if (-not $IsWindows){
+    Write-Error "This script can only be run in Windows" -ErrorAction Stop
+}
+
 Function createShortcut($src, $dst, [string]$icon = "none"){
     # echo "src=$src, ddst=$ddst"
     $WScriptShell = New-Object -ComObject WScript.Shell
     
-    # $dst = $dst + ".lnk"
+    if (-not $dst.Endswith(".lnk")){
+      $dst = $dst + ".lnk"
+    }
     # Write-Output $src
     # Write-Output $dst
 
@@ -17,10 +30,8 @@ Function createShortcut($src, $dst, [string]$icon = "none"){
 }
 
 
-$p1 = $args[0]
-$p2 = $args[1]
-# $item = Get-Item $p1
-# $dst =(Get-Location).Path + "\" + $item.BaseName + ".lnk"
-# echo $dst.GetType().FullName
-
-createShortcut $p1 $p2
+if ($shortcut){
+  createShortcut $from $to
+} else {
+    New-Item -ItemType SymbolicLink -Path $to -Target $from -Force > $null
+}
