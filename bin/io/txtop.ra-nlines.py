@@ -44,7 +44,7 @@ def ra_nlines(basefile: str, rafile: str, cheader: Optional[str] = None) -> None
     #@ <core>
     #@ <.boundary:create>
     if not os.path.exists(basefile):
-        if cheader:
+        if cheader is not None:  #@ exp Empty string is allowed @2024-03-22 11:10:07
             if cheader in headerStock:
                 header = headerStock[cheader]
             else:

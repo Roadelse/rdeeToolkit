@@ -144,8 +144,7 @@ EOF
 # <..alias>
 cat << EOF >> $setenvfile
 
-alias g='source g2s'
-alias cdd='source cdDir'
+alias cdf='source cdDir'
 
 # >>>>>>>>>>>>>>>>> project based
 export reSG_dat=${binary_dir}/.reSG.dat
@@ -157,7 +156,6 @@ EOF
 
 cat << EOF >> $modulefile
 
-set-alias g {source g2s}
 set-alias cdd {source cdDir}
 
 # >>>>>>>>>>>>>>>>> project based
