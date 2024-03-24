@@ -147,7 +147,6 @@ cat << EOF >> $setenvfile
 alias cdf='source cdDir'
 
 # >>>>>>>>>>>>>>>>> project based
-export reSG_dat=${binary_dir}/.reSG.dat
 
 # >>>>>>>>>>>>>>>>> final
 alias iR='source $shlib_path/rdee.sh'
@@ -159,7 +158,6 @@ cat << EOF >> $modulefile
 set-alias cdd {source cdDir}
 
 # >>>>>>>>>>>>>>>>> project based
-setenv reSG_dat ${binary_dir}/.reSG.dat
 
 # >>>>>>>>>>>>>>>>> final
 set-alias iR {source $shlib_path/rdee.sh}
