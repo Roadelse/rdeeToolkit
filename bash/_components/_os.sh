@@ -26,3 +26,17 @@ get_fds_in_rstArray(){
 
     IFS=$'\n' read -r -d '' -a _rstArray < <(find "$target_path" -mindepth 1 -maxdepth 1 -type d -printf '%P\n' && printf '\0')
 }
+
+
+#@ function:run | used to wrap scripts which cannot change current shell's state | Hidden now due to useless maybe?
+#@function run(){
+#@    eval `${*:2}`
+#@}
+
+
+
+
+
+
+
+
