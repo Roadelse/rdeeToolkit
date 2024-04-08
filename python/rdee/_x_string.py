@@ -23,4 +23,7 @@ class String:
         :return: A list of trimed string
         """
         longestSuffix_len = len(os.path.commonprefix([s[::-1] for s in ss]))  #@sk use os.path.commonprefix to get longest suffix (prefix for reversed strings in fact)
-        return [s[:-longestSuffix_len] for s in ss]
+        if longestSuffix_len > 0:
+            return [s[:-longestSuffix_len] for s in ss]
+        else:
+            return list(ss)

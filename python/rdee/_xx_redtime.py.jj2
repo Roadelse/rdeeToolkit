@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+# coding=utf-8
+
+"""
+This module contains several functions with relation to time
+"""
+
+#@sk import
+import os
+import datetime
+from abc import ABC, abstractmethod
+
+
+import pandas
+from pandas import Timestamp, Timedelta
+from typing import Sequence, Any
+from enum import Enum, auto
+
+from ._o_globalstate import logger, strict
+
+class _time(ABC):
+    def __init__(self, year: int = 0, month: int = 0, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0, msecond: int = 0):
+        self._values = [year, month, day, hour, minute, second, msecond]
+
+    #@jj2 for v in ["year", "month", "day", "hour", "minute", "second", "msecond"]:
+    @property
+    def {{ v }}(self):
+        return self._values[{{ loop.index0 }}]
+    @{{ v }}.setter
+    def {{ v }}(self, val: int):
+        assert isinstance(val, int)
+        self._values[{{ loop.index0 }}] = val
+
+    #@jj2 endfor
+
+    def __str__(self):
+        """
+        Doesn't consider <msecond> now @2024-04-08 22:38:26
+        """
+        return str(self.year) + "/" + str(self.month) + "/" + str(self.day) + " " + str(self.hour) + ":" + str(self.minute) + ":" + str(self.second)
+
+
+class timescale(Enum):
+    YEAR = 0
+    MONTH = 1
+    DAY = 2
+    HOUR = 3
+    MINUTE = 4
+    SECOND = 5
+
+    @classmethod
+    def getTimescale(cls, s: str):
+        assert isinstance(s, str)
+        if len(s) == 4:
+            return cls.YEAR
+        elif len(s) == 6:
+            return cls.MONTH
+        elif len(s) == 8:
+            return cls.DAY
+        elif len(s) == 10:
+            return cls.HOUR
+        elif len(s) == 12:
+            return cls.MINUTE
+        elif len(s) == 14:
+            return cls.SECOND
+        else:
+            logger.error(f"Wrong length for ymdhms string: {len(s)}")
+            raise RuntimeError
+
+class freetime(_time):
+    def __init__(self, *args, **kwargs):
+        _time.__init__(*args, **kwargs)
+
+    def sim(self):
+    	seconds: int = self.day * 86400 + self.hour * 3600 + self.minute * 60 + self.second
+		if seconds >= 0:
+			self.day = seconds // 86400
+		else:
+			self.day = (seconds - 86399) / 86400
+		seconds -= _day * 86400
+		self.hour = seconds // 3600
+		seconds -= self.hour * 3600
+		self.minute = seconds // 60
+		self.second = seconds % 60
+
+		months: int = self.year * 12 + self.month
+		if months < 0:
+			self.year = (months - 11) // 12
+		else:
+			self.year = months // 12
+		self.month = months - self.year * 12

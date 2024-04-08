@@ -34,7 +34,7 @@ from ._x_win import createShortCut, GetShortCut, path2wsl, path2win
 
 
 # from ._array import *
-# from ._time import *
+from ._x_time import Time
 # from ._geo import *
 # from ._io import *
 # from ._code import *

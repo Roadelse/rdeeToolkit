@@ -33,6 +33,9 @@ class DRPC(Enum):
 
 
 class Array:
+    """
+    Static class holding all array-relative functions
+    """
     def __init__(self, *args, **kwargs):
         raise TypeError(f"{self.__class__.__name__} class cannot be instantiated")
 
