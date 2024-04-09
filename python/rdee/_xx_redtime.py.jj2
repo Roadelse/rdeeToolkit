@@ -19,6 +19,7 @@ from typing import Sequence, Any
 from enum import Enum, auto
 
 from ._o_globalstate import logger, strict
+from ._o_error import ShouldNeverSeeError
 
 class _time(ABC):
     def __init__(self, year: int = 0, month: int = 0, day: int = 0, hour: int = 0, minute: int = 0, second: int = 0, msecond: int = 0):
@@ -38,12 +39,15 @@ class _time(ABC):
 
 
 class realevel(Enum):
+    UNKNOWN = -1
     YEAR = 0
     MONTH = 1
     DAY = 2
     HOUR = 3
     MINUTE = 4
     SECOND = 5
+    MSECOND = 6
+    ALL = -2
 
     @classmethod
     def getTimescale(cls, s: str):
@@ -183,3 +187,248 @@ class freetime(_time):
         if self.is_empty():
             return False
         return self.months >= 0 and self.seconds >= 0  # note | Not precise in fact @2024-04-09 10:45:04
+
+
+class realtime(_time):
+    def __init__(self, year: int = -1, month: int = -1, day: int = -1, hour: int = -1, minute: int = -1, second: int = -1, msecond: int = -1):
+        _time.__init__(self, year, month, day, hour, minute, second, msecond)
+        self._timescale = realevel.UNKNOWN
+
+    def __copy__(self):
+        return realtime(self.year, self.month, self.day, self.hour, self.minute, self.second, self.msecond)
+
+    def __str__(self):
+        rst: str = str(self.year)
+        if self.timescale == realevel.YEAR:
+            return rst
+        
+        rst += "/" + str(self.month)
+        if self.timescale == realevel.MONTH:
+            return rst
+        
+        rst += "/" + str(self.day)
+        if self.timescale == realevel.DAY:
+            return rst
+
+        rst += " " + str(self.hour)
+        if self.timescale == realevel.HOUR:
+            return rst
+
+        rst += ":" + str(self.minute)
+        if self.timescale == realevel.MINUTE:
+            return rst
+
+        rst += ":" + str(self.second)
+        if self.timescale == realevel.SECOND:
+            return rst
+        
+        raise ShouldNeverSeeError
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __iadd__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        self._values = [self._values[i] + ft2._values[i] for i in range(len(self._values))]
+        self.sim()
+        return self
+    
+    def __add__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        ftN = self.copy()
+        ftN += ft2
+        return ftN
+
+    def __isub__(self, ft2: _time):
+        if isinstance(ft2, freetime):
+            self._values = [self._values[i] - ft2._values[i] for i in range(len(self._values))]
+            self.sim()
+            return self
+        elif isinstance(ft2, realtime):
+            assert self.timescale == ft2.timescale
+		    stamp1 = stamp()
+            stamp2 = real.stamp()
+            if stamp1 == stamp2:
+                return freetime()
+            return freetime(**{self.timescale.name.lower(): (stamp1-stamp2)})
+        raise TypeError
+
+
+    def __sub__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        ftN = self.copy()
+        ftN -= ft2
+        return ftN
+
+    def add(self, ft2: freetime):
+        self += ft2
+        return self
+    
+    def sub(self, ft2: freetime):
+        self -= ft2
+        return self
+
+    
+    
+    
+    
+    def copy(self):
+        return self.__copy__()
+
+    @property
+    def timescale(self):
+        if self._timescale != realevel.UNKNOWN:
+            return self._timescale
+
+        for i in range(len(self._values)):
+            if self._values[i] < 0:
+                self._timescale = realevel(i)
+                return self._timescale
+
+        return self.MSECOND
+    
+    def check(self, ts: realevel):
+        from ._x_time import Time
+        assert self.timescale != realevel.UNKNOWN
+
+        assert ts.value <= self.timescale
+
+        if (ts == realevel.MONTH or ts == realevel.ALL and self.timescale >= realevel.MONTH) and self.month <= 0 or self.month > 12:
+            raise RuntimeError(f"Wrong month: {self.month}")
+        if (ts == realevel.DAY or ts == realevel.ALL and self.timescale >= realevel.DAY) and self.day <= 0 or self.day > Time.get_days_from_ym(self.year, self.month):
+            raise RuntimeError(f"Wrong day: {self.day} in {self.year}{self.month}")
+        if (ts == realevel.HOUR or ts == realevel.ALL and self.timescale >= realevel.HOUR) and self.hour <= 0 or self.hour > 23:
+            raise RuntimeError(f"Wrong hour: {self.hour}")
+        if (ts == realevel.MINUTE or ts == realevel.ALL and self.timescale >= realevel.MINUTE) and self.minute <= 0 or self.minute > 59:
+            raise RuntimeError(f"Wrong minute: {self.minute}")
+        if (ts == realevel.SECOND or ts == realevel.ALL and self.timescale >= realevel.SECOND) and self.second <= 0 or self.second > 59:
+            raise RuntimeError(f"Wrong second: {self.second}")
+        if (ts == realevel.MSECOND or ts == realevel.ALL and self.timescale >= realevel.MSECOND) and self.msecond <= 0 or self.msecond > 999:
+            raise RuntimeError(f"Wrong msecond: {self.msecond}")
+
+    #@jj2 for v in ["year", "month", "day", "hour", "minute", "second", "msecond"]:
+    @{{ v }}.setter
+    def {{ v }}(self, val: int):
+        self._values[{{ loop.index0 }}] = val
+        self._timescale = realevel.UNKNOWN
+        self.check(realevel.{{ v.upper() }})
+    
+    def set_{{ v }}(self, val: int):
+        self.{{ v }} = val
+        return self
+
+    #@jj2 endfor
+
+    @property
+    def years(self) -> int:
+        return self.year
+
+    @property
+    def months(self) -> int:
+        return (self.year - 1) * 12  + self.month
+
+    @property
+    def days(self) -> int:
+        from .._x_time import Time
+        rst_days = self.day
+		if (self.year > 1)
+			rst_days += ((self.year - 1) * 365 + Time::countLeap(1, self.year - 1, true, false))
+		rst_days += Time::get_jdays(_month, 1, _year) - 1
+		return rst_days
+
+    @property
+    def hours(self) -> int:
+        return (self.days - 1) * 24 + self.hour
+
+
+    @property
+    def minutes(self) -> int:
+		return self.hours * 60 + self.minute
+
+    @property
+    def seconds(self) -> int:
+		return self.minutes * 60 + self.second
+
+    @property
+    def mseconds(self) -> int:
+        raise NotImplementedError
+
+    @property
+    def stamp(self) -> int:
+        if self.timescale == realevel.YEAR:
+            return self.years
+        elif self.timescale == realevel.MONTH:
+            return self.months
+        elif self.timescale == realevel.DAY:
+            return self.days
+        elif self.timescale == realevel.HOUR:
+            return self.hours
+        elif self.timescale == realevel.MINUTE:
+            return self.minutes
+        elif self.timescale == realevel.SECOND:
+            return self.seconds
+        elif self.timescale == realevel.MSECOND:
+            return self.mseconds
+        raise ShouldNeverSeeError
+
+    def sim(self):
+        form ._x_time import Time
+        assert self.timescale != realevel.UNKNOWN
+
+        if self.timescale == realevel.YEAR:
+            return
+
+        #@ year-month-logic
+		months = self.year * 12 + self.month
+        if months <= 0:
+			self.year = int((months - 12) / 12)
+		else:
+			self.year = int((_months - 1) / 12)
+		self.month = months - self.year * 12
+		assert self.month > 0 and self.month < 13
+
+        if self.timescale == realevel.MONTH:
+            return
+
+        for i in range(self.timescale.value+1, 7):
+            self._values[i] = 0
+
+        
+		seconds = (self.day - 1) * 86400 + self.hour * 3600 + self.minute * 60 + self.second
+		if seconds >= 0:
+			self.day = int(seconds / 86400)
+		else:
+			self.day = int((seconds - 86399) / 86400)
+		seconds -= self.day * 86400
+		self.hour = seconds / 3600
+		seconds -= self.hour * 3600
+		self.minute = seconds / 60
+		self.second = seconds % 60
+		self.day += 1
+
+        #@ month-day-logic | build a bridge between year-month and day
+		if self.day <= 0:
+			nyears_n2p = int(-self.day / 366) + 1 #@ exp | years that makes day be positive
+			ndays_n2p = nyears_n2p * 365 + Time.countLeap(self.year - nyears_n2p, self.year, False if self.month > 2 else true, True if self.month > 2 else False)
+			self.year -= nyears_n2p
+			self.day += ndays_n2p
+        
+        nyears_p20 = int(self.day / 366)
+		if nyears_p20 > 0:
+			ndays_p20 = nyears_p20 * 365 + Time.countLeap(self.year, self.year + nyears_p20, False if self.month > 2 else True, True if self.month > 2 else False)
+			self.year += nyears_p20
+			self.day -= ndays_p20
+
+        while self.day > Time.get_days_from_ym(self.year, self.month):
+			self.day -= Time.get_days_from_ym(self.year, self.month)
+			self.month += 1
+			if self.month == 0:
+				self.month = 12
+				self.year -= 1
+				assert self.year > 0
+			elif self.month == 13:
+				self.month = 1
+				self.year += 1
+
+        for i in range(self.timescale.value+1, 7):
+            self._values[i] = -1

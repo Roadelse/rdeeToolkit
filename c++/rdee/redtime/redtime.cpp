@@ -468,7 +468,6 @@ namespace redtime
 
 	int realtime::get_jdays(int month, int day, int year)
 	{
-		bool isLeap = realtime::isLeap(year);
 		int jdays = 0;
 		for (int i = 1; i < month; i++)
 		{

@@ -403,6 +403,28 @@ class Test_time(unittest.TestCase):
         ts2_str = Time.get_time_str_and_scale(ts2)
         self.assertListEqual(["2024020111", "2021020113"], ts2_str)
 
+    def test_get_days_from_ym(self) -> None:
+        from .._x_time import Time
+        self.assertEqual(29, Time.get_days_from_ym("2016", "02"))
+        self.assertEqual(31, Time.get_days_from_ym("2018", 12))
+        with self.assertRaises(Exception):
+            Time.get_days_from_ym("2018", 13)
+    
+    def test_countLeap(self) -> None:
+        from .._x_time import Time
+
+        self.assertEqual(0, Time.countLeap(1, 1))
+        self.assertEqual(24, Time.countLeap(1, 100))
+        self.assertEqual(1, Time.countLeap(100, 104))
+        self.assertEqual(1, Time.countLeap(-104, -100))
+        self.assertEqual(48, Time.countLeap(-100, 100))
+        self.assertEqual(97, Time.countLeap(1, 400))
+        self.assertEqual(121, Time.countLeap(-400, 100))
+        self.assertEqual(121, Time.countLeap(-100, 400))
+        self.assertEqual(122, Time.countLeap(-104, 400))
+        self.assertEqual(121, Time.countLeap(-104, 400, False))
+        self.assertEqual(122, Time.countLeap(-104, 402))
+        self.assertEqual(122, Time.countLeap(-105, 401, False, False))
 
 class Test_redtime(unittest.TestCase):
     def setUp(self) -> None:

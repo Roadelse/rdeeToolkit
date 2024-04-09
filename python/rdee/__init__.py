@@ -34,7 +34,7 @@ from ._x_win import createShortCut, GetShortCut, path2wsl, path2win
 
 
 myDir = os.path.dirname(os.path.abspath(__file__))
-if os.stat(f"{myDir}/_xx_redtime.py.jj2").st_mtime > os.stat(f"{myDir}/_xx_redtime.py").st_mtime:
+if (not os.path.exists(f"{myDir}/_xx_redtime.py")) or os.stat(f"{myDir}/_xx_redtime.py.jj2").st_mtime > os.stat(f"{myDir}/_xx_redtime.py").st_mtime:
     ogs.logger.info("Rendering _xx_redtime.py from jinja2 source ...")
     os.system(f"{myDir}/render.ps1")
 
