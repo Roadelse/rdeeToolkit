@@ -6,6 +6,8 @@ This module contains several functions with relation to time
 """
 
 #@sk import
+from __future__ import annotations
+
 import os
 import datetime
 from abc import ABC, abstractmethod
@@ -33,14 +35,9 @@ class _time(ABC):
 
     #@jj2 endfor
 
-    def __str__(self):
-        """
-        Doesn't consider <msecond> now @2024-04-08 22:38:26
-        """
-        return str(self.year) + "/" + str(self.month) + "/" + str(self.day) + " " + str(self.hour) + ":" + str(self.minute) + ":" + str(self.second)
 
 
-class timescale(Enum):
+class realevel(Enum):
     YEAR = 0
     MONTH = 1
     DAY = 2
@@ -69,23 +66,120 @@ class timescale(Enum):
 
 class freetime(_time):
     def __init__(self, *args, **kwargs):
-        _time.__init__(*args, **kwargs)
+        _time.__init__(self, *args, **kwargs)
+
+    def __copy__(self):
+        return freetime(self.year, self.month, self.day, self.hour, self.minute, self.second, self.msecond)
+
+    def __str__(self):
+        """
+        Doesn't consider <msecond> now @2024-04-08 22:38:26
+        """
+        return str(self.year) + "/" + str(self.month) + "/" + str(self.day) + " " + str(self.hour) + ":" + str(self.minute) + ":" + str(self.second)
+    
+    def __repr__(self):
+        return self.__str__()
+
+    def __iadd__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        self._values = [self._values[i] + ft2._values[i] for i in range(len(self._values))]
+        return self
+    
+    def __add__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        ftN = self.copy()
+        ftN += ft2
+        return ftN
+
+    def __isub__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        self._values = [self._values[i] - ft2._values[i] for i in range(len(self._values))]
+        return self
+    
+    def __sub__(self, ft2: freetime):
+        assert isinstance(ft2, freetime)
+        ftN = self.copy()
+        ftN -= ft2
+        return ftN
+
+    def add(self, ft2: freetime):
+        self += ft2
+        return self
+    
+    def sub(self, ft2: freetime):
+        self -= ft2
+        return self
+
+    def copy(self):
+        return self.__copy__()
 
     def sim(self):
-    	seconds: int = self.day * 86400 + self.hour * 3600 + self.minute * 60 + self.second
-		if seconds >= 0:
-			self.day = seconds // 86400
-		else:
-			self.day = (seconds - 86399) / 86400
-		seconds -= _day * 86400
-		self.hour = seconds // 3600
-		seconds -= self.hour * 3600
-		self.minute = seconds // 60
-		self.second = seconds % 60
+        seconds: int = self.day * 86400 + self.hour * 3600 + self.minute * 60 + self.second
+        if seconds >= 0:
+            self.day = seconds // 86400
+        else:
+            self.day = int((seconds - 86399) / 86400)
+        seconds -= self.day * 86400
+        assert seconds >= 0
+        self.hour = seconds // 3600
+        seconds -= self.hour * 3600
+        self.minute = seconds // 60
+        self.second = seconds % 60
 
-		months: int = self.year * 12 + self.month
-		if months < 0:
-			self.year = (months - 11) // 12
-		else:
-			self.year = months // 12
-		self.month = months - self.year * 12
+        months: int = self.year * 12 + self.month
+        if months < 0:
+            self.year = int((months - 11) / 12)
+        else:
+            self.year = months // 12
+        self.month = months - self.year * 12
+
+    @property
+    def years(self) -> int:
+        nft: freetime = self.copy()
+        nft.sim()
+        return nft.year
+
+    @property
+    def months(self) -> int:
+        nft: freetime = self.copy()
+        nft.sim()
+        return nft.year * 12  +nft.month
+
+    @property
+    def days(self) -> int:
+        nft: freetime = self.copy()
+        nft.sim()
+        return nft.day
+
+    @property
+    def hours(self) -> int:
+        nft: freetime = self.copy()
+        nft.sim()
+        return nft.day * 24 + nft.hour
+
+    @property
+    def minutes(self) -> int:
+        nft: freetime = self.copy()
+        nft.sim()
+        return nft.day * 24 * 60 + nft.hour * 60 + nft.minute
+
+    @property
+    def seconds(self) -> int:
+        nft: freetime = self.copy()
+        nft.sim()
+        return nft.day * 86400 + nft.hour * 3600 + nft.minute * 60 + nft.second
+
+    @property
+    def mseconds(self) -> int:
+        raise NotImplementedError
+
+    def is_empty(self) -> bool:
+        for val in self._values:
+            if val != 0:
+                return True
+        return False
+    
+    def is_positive(self) -> int:
+        if self.is_empty():
+            return False
+        return self.months >= 0 and self.seconds >= 0  # note | Not precise in fact @2024-04-09 10:45:04

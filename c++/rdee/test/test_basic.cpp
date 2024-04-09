@@ -58,7 +58,7 @@ namespace Test_redtime
 		REQUIRE(frt1.hours() == -26);
 		REQUIRE(frt1.str() == "-1/-1/-1 -1:-1:-1");
 		frt1.sim();
-		// std::cout << frt1.str() << std::endl;
+		REQUIRE(frt1.str() == "-2/11/-2 22:58:59");
 	}
 
 	TEST_CASE("testing freetime::+-")

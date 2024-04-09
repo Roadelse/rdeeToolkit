@@ -33,8 +33,14 @@ from ._x_string import String
 from ._x_win import createShortCut, GetShortCut, path2wsl, path2win
 
 
+myDir = os.path.dirname(os.path.abspath(__file__))
+if os.stat(f"{myDir}/_xx_redtime.py.jj2").st_mtime > os.stat(f"{myDir}/_xx_redtime.py").st_mtime:
+    ogs.logger.info("Rendering _xx_redtime.py from jinja2 source ...")
+    os.system(f"{myDir}/render.ps1")
+
 # from ._array import *
 from ._x_time import Time
+from ._xx_redtime import realevel, freetime
 # from ._geo import *
 # from ._io import *
 # from ._code import *

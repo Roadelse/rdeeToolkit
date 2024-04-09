@@ -404,6 +404,59 @@ class Test_time(unittest.TestCase):
         self.assertListEqual(["2024020111", "2021020113"], ts2_str)
 
 
+class Test_redtime(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def tearDown(self) -> None:
+        pass
+
+    def test_init(self) -> None:
+        from .._xx_redtime import freetime
+
+        ft1: freetime = freetime(1, 3, 5, 7, 9)
+        self.assertEqual(1, ft1.year)
+
+    def test_freetime_sim(self) -> None:
+        from .._xx_redtime import freetime
+
+        ft1: freetime = freetime(0, 0)
+        ft1.sim()
+        self.assertEqual(0, ft1.year)
+        self.assertEqual(0, ft1.month)
+
+        ft2: freetime = freetime(-1, -1)
+        ft2.sim()
+        self.assertEqual("-2/11/0 0:0:0", str(ft2))
+
+        ft3: freetime = freetime(-1, 24, 796, 61, 59, 61)
+        ft3.sim()
+        self.assertEqual("1/0/798 14:0:1", str(ft3))
+
+        ft4: freetime = freetime(0, -12, 1, -1, 1, -3661)
+        ft4.sim()
+        self.assertEqual("-1/0/0 21:59:59", str(ft4))
+
+    def test_freetime_count(self) -> None:
+        from .._xx_redtime import freetime
+        ft1 = freetime(-1, -1, -1, -1, -1, -1)
+        self.assertEqual(-13, ft1.months)
+        self.assertEqual(-2, ft1.years)
+        self.assertEqual(-2, ft1.days)
+        self.assertEqual(-26, ft1.hours)
+        self.assertEqual("-1/-1/-1 -1:-1:-1", str(ft1))
+        ft1.sim()
+        self.assertEqual("-2/11/-2 22:58:59", str(ft1))
+
+    def test_freetime_add_sub(self) -> None:
+        from .._xx_redtime import freetime
+
+        ft1: freetime = freetime(-1, 1, -1, 1, -1, 1) + freetime(1, -1, 1, -1, 1, -1)
+        self.assertEqual("0/0/0 0:0:0", str(ft1))
+        self.assertEqual("1/1/1 2:2:2", str(ft1.add(freetime(1,1,1,2,2,2))))
+        self.assertEqual("-1/0/0 1:1:1", str(ft1.sub(freetime(2,1,1,1,1,1))))
+
+
 class Test_array(unittest.TestCase):
     def setUp(self) -> None:
         pass
