@@ -426,6 +426,11 @@ class Test_time(unittest.TestCase):
         self.assertEqual(122, Time.countLeap(-104, 402))
         self.assertEqual(122, Time.countLeap(-105, 401, False, False))
 
+    def test_get_jdays(self) -> None:
+        from .._x_time import Time
+
+        self.assertEqual(1, Time.get_jdays(1,1,2014))
+
 class Test_redtime(unittest.TestCase):
     def setUp(self) -> None:
         pass
@@ -477,6 +482,87 @@ class Test_redtime(unittest.TestCase):
         self.assertEqual("0/0/0 0:0:0", str(ft1))
         self.assertEqual("1/1/1 2:2:2", str(ft1.add(freetime(1,1,1,2,2,2))))
         self.assertEqual("-1/0/0 1:1:1", str(ft1.sub(freetime(2,1,1,1,1,1))))
+
+    def test_realtime_basic(self) -> None:
+        from .._xx_redtime import realtime, realevel
+
+        rt1 = realtime(2024, 2, 5, 11, 4, 59)
+        self.assertEqual(realevel.SECOND, rt1.timescale)
+
+        rt2 = realtime(2024, 2, 5)
+        self.assertEqual(realevel.DAY, rt2.timescale)
+        self.assertEqual(realevel.HOUR, rt2.set_hour(11).timescale)
+        with self.assertRaises(Exception):
+            rt2.set_second(58)
+        
+        rt3 = realtime(2024)
+        self.assertEqual(realevel.YEAR, rt3.timescale)
+        self.assertEqual("2024", str(rt3))
+        rt3.set_month(2).set_day(28).set_hour(11).set_minute(58)
+        self.assertEqual("2024/2/28 11:58", str(rt3))
+
+
+        rt4 = realtime(2024, 2, 4, 14, 45, 59)
+        rt4.sim()  #@ exp | redundant operation
+        self.assertEqual("2024/2/4 14:45:59", str(rt4))
+        
+        with self.assertRaises(Exception):
+            rtx = realtime(2024, 2, 4, 14, 45, 60)
+
+    def test_realtime_stamp(self) -> None:
+        from .._xx_redtime import freetime, realtime, realevel
+
+        rt1 = realtime(1, 1, 1, 1, 1, 1)
+        self.assertEqual(1, rt1.years)
+        self.assertEqual(1, rt1.months)
+        self.assertEqual(1, rt1.days)
+        self.assertEqual(3661, rt1.stamp)
+        self.assertEqual(62135596800, realtime(1970, 1, 1, 00, 00, 00).stamp)
+        self.assertEqual(63554975914, realtime(2014, 12, 23, 23, 58, 34).stamp)
+
+        self.assertEqual(2014, realtime(2014).stamp)
+        self.assertEqual(36, realtime(3, 12).stamp)
+        self.assertEqual(1068, realtime(3, 12, 4).stamp)
+        self.assertEqual(1067 * 24 + 10, realtime(3, 12, 4, 10).stamp)
+
+    def test_realtime_op(self) -> None:
+        from .._xx_redtime import freetime, realtime, realevel
+
+        rt1 = realtime(2024, 2, 4, 14, 45, 59)
+        rt2 = rt1 + freetime(month=-20)
+        self.assertEqual("2022/6/4 14:45:59", str(rt2))
+
+        rt3 = rt1 + freetime(-1, 0, 25, 0, -1, 1)
+        self.assertEqual("2023/3/1 14:45:0", str(rt3))
+        rt3B = rt1 + freetime(0, 0, 25, 0, -1, 1)
+        self.assertEqual("2024/2/29 14:45:0", str(rt3B))
+
+        rt4 = rt1 + freetime(0, 0, 0, 1234, 5678, 9101112)
+        self.assertEqual("2024/7/14 7:29:11", str(rt4))
+
+        rt5: realtime = freetime(0, 0, -1234, -5678, -9101112, -13141516) + rt1
+        self.assertTrue(isinstance(rt5, realtime))
+        self.assertEqual("2002/5/7 17:8:43", str(rt5))
+
+        ft1 = rt1 - realtime(2024, 2, 4, 14, 46, 0)
+        self.assertEqual("0/0/0 0:0:-1", str(ft1))
+
+        ft2 = realtime(2024, 2, 4) - realtime(2023, 2, 4)
+        self.assertEqual("0/0/365 0:0:0", str(ft2))
+
+    def test_realtime_op2(self) -> None:
+        """
+        Scaled +-
+        """
+        from .._xx_redtime import freetime, realtime, realevel
+
+        rt1 = realtime(2024)
+        rt2 = rt1 + freetime(-1, 300)
+        self.assertEqual("2023", str(rt2))
+        self.assertEqual(-1, rt2.month)
+
+        rt3: realtime = realtime(2024, 2, 4, 0, 1) - freetime(0, 0, 0, 0, 0, 3600)
+        self.assertEqual("2024/2/4 0:1", str(rt3))
 
 
 class Test_array(unittest.TestCase):

@@ -18,7 +18,7 @@ include(rdee.python)
 
 add_subdirectory(thirdparty)
 
-return()
+# return()
 
 include_directories(include)
 

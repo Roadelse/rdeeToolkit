@@ -65,7 +65,7 @@ class Time:
     @staticmethod
     def get_jdays(month: int, day: int, year: int):
         jdays: int = 0
-        for i in range(1, month+1): 
+        for i in range(1, month): 
             jdays += Time.get_days_from_ym(year, i)
         jdays += day
         return jdays

@@ -71,7 +71,7 @@ namespace Test_redtime
 
 	TEST_CASE("testing realtime base")
 	{
-		realtime real1 = realtime(2024, 2, 5, 11, 04, 59);
+		realtime real1 = realtime(2024, 2, 5, 11, 4, 59);
 		REQUIRE(real1.get_timescale() == realevel::SECOND);
 		realtime real2 = realtime(2024, 2, 5);
 		REQUIRE(real2.get_timescale() == realevel::DAY);
@@ -126,6 +126,7 @@ namespace Test_redtime
 		//@sk exp test invalid month
 		realtime real2 = real1 + freetime(-1, 300);
 		REQUIRE(real2.str() == "2023");
+        REQUIRE(real2.month() == -1);
 
 		//@sk test invalid minute
 		realtime real3 = realtime(2024, 2, 4, 0, 1) - freetime(0, 0, 0, 0, 0, 3600);
