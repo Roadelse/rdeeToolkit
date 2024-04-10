@@ -564,6 +564,67 @@ class Test_redtime(unittest.TestCase):
         rt3: realtime = realtime(2024, 2, 4, 0, 1) - freetime(0, 0, 0, 0, 0, 3600)
         self.assertEqual("2024/2/4 0:1", str(rt3))
 
+    def test_realtime_rebase(self) -> None:
+        from .._xx_redtime import freetime, realtime, realevel, realtimeseries
+
+        rt1 = realtime(2014)
+        rt2 = rt1.rebase(realevel.MONTH)
+        self.assertEqual(realevel.MONTH, rt2.timescale)
+        self.assertEqual("2014/1", str(rt2))
+        rt3 = rt2.rebase(realevel.HOUR)
+        self.assertEqual(realevel.HOUR, rt3.timescale)
+        self.assertEqual("2014/1/1 0", str(rt3))
+
+        rt3.rebase(realevel.SECOND, inplace=True)
+        self.assertEqual("2014/1/1 0:0:0", str(rt3))
+
+    def test_realtime_rebase2rts(self) -> None:
+        from .._xx_redtime import freetime, realtime, realevel, realtimeseries
+
+        rt1 = realtime(2014)
+
+        rts1: realtimeseries = rt1.rebase2rts(realevel.MONTH)
+        self.assertEqual(12, len(rts1.rts))
+        self.assertEqual(realevel.MONTH, rts1.timescale)
+        self.assertEqual("2014/1", str(rts1.rts[0]))
+        self.assertEqual("2014/6", str(rts1.rts[5]))
+        self.assertEqual("2014/12", str(rts1.rts[-1]))
+
+        rts2: realtimeseries = rt1.rebase2rts(realevel.HOUR)
+        self.assertEqual(8760, len(rts2.rts))
+        self.assertEqual(realevel.HOUR, rts2.timescale)
+        self.assertEqual("2014/1/1 0", str(rts2.rts[0]))
+        self.assertEqual("2014/12/31 23", str(rts2.rts[-1]))
+
+        rt4 = realtime(2024, 2, 6)
+        rts3: realtimeseries = rt4.rebase2rts(realevel.SECOND)
+        self.assertEqual(86400, len(rts3.rts))
+        self.assertEqual(realevel.SECOND, rts3.timescale)
+        self.assertEqual("2024/2/6 0:0:0", str(rts3.rts[0]))
+        self.assertEqual("2024/2/6 23:59:59", str(rts3.rts[-1]))
+
+
+    def test_realtimeseries_init(self) -> None:
+        from .._xx_redtime import realtimeseries, realtime, freetime
+        rts1 = realtimeseries(realtime(2014), realtime(2024), freetime(1))
+        self.assertEqual(11, len(rts1.rts))
+        self.assertEqual("2014", str(rts1.rts[0]))
+        self.assertEqual("2024", str(rts1.rts[-1]))
+        self.assertEqual("2023", str(rts1.rts[-2]))
+
+        rts1B = realtimeseries(realtime(2014), realtime(2024))
+        self.assertEqual(11, len(rts1B.rts))
+        self.assertEqual("2014", str(rts1B.rts[0]))
+        self.assertEqual("2024", str(rts1B.rts[-1]))
+        self.assertEqual("2023", str(rts1B.rts[-2]))
+
+        rts2 = realtimeseries(realtime(2024, 1, 1), realtime(2024, 12, 31))
+        self.assertEqual(366, len(rts2.rts))
+        self.assertEqual("2024/1/1", str(rts2.rts[0]))
+        self.assertEqual("2024/12/31", str(rts2.rts[-1]))
+        self.assertEqual("2024/12/30", str(rts2.rts[-2]))
+
+
 
 class Test_array(unittest.TestCase):
     def setUp(self) -> None:

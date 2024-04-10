@@ -106,6 +106,7 @@ class freetime(_time):
     def __repr__(self):
         return self.__str__()
 
+
     def __iadd__(self, ft2: freetime):
         assert isinstance(ft2, freetime)
         self._values = [self._values[i] + ft2._values[i] for i in range(len(self._values))]
@@ -216,6 +217,9 @@ class freetime(_time):
 
 
 class realtime(_time):
+
+    values_default = (1900, 1, 1, 0, 0, 0, 0)
+
     def __init__(self, year: int = -1, month: int = -1, day: int = -1, hour: int = -1, minute: int = -1, second: int = -1, msecond: int = -1):
         _time.__init__(self, year, month, day, hour, minute, second, msecond)
         self._timescale = realevel.UNKNOWN
@@ -254,6 +258,57 @@ class realtime(_time):
     def __repr__(self):
         return self.__str__()
 
+
+    def __gt__(self, rt2: realtime):
+        if not isinstance(rt2, realtime):
+            raise TypeError
+        
+        for i in range(7):
+            if self._values[i] <= rt2._values[i]:
+                return False
+        return True
+
+    def __lt__(self, rt2: realtime):
+        if not isinstance(rt2, realtime):
+            raise TypeError
+        
+        for i in range(7):
+            if self._values[i] >= rt2._values[i]:
+                return False
+        return True
+
+    def __ge__(self, rt2: realtime):
+        if not isinstance(rt2, realtime):
+            raise TypeError
+        
+        for i in range(7):
+            if self._values[i] < rt2._values[i]:
+                return False
+        return True
+
+    def __le__(self, rt2: realtime):
+        if not isinstance(rt2, realtime):
+            raise TypeError
+        
+        for i in range(7):
+            if self._values[i] > rt2._values[i]:
+                return False
+        return True
+
+    def __eq__(self, rt2: realtime):
+        if not isinstance(rt2, realtime):
+            raise TypeError
+        
+        for i in range(7):
+            if self._values[i] != rt2._values[i]:
+                return False
+        return True
+
+    def __ne__(self, rt2: realtime):
+        return not (self == rt2)
+    
+    
+    
     def __iadd__(self, ft2: freetime):
         assert isinstance(ft2, freetime)
         for i in range(len(self._values)):
@@ -487,3 +542,110 @@ class realtime(_time):
             self._values[i] = -1
 
         # logger.debug(f"leave sim for {self}")
+
+    def rebase(self, ts: realevel, inplace: bool = False):
+        if strict:
+            if not isinstance(ts, realevel):
+                raise TypeError
+            if ts.value < 0:
+                raise ValueError 
+
+        if inplace:
+            rst = self
+        else:
+            rst = self.copy()
+
+        if ts <= self.timescale:
+            for i in range(ts.value, 7):
+                rst._values[i] = -1
+        else:
+            for i in range(self.timescale.value + 1, ts.value + 1):
+                rst._values[i] = realtime.values_default[i]
+        
+        rst._timescale = realevel.UNKNOWN
+        
+        return rst
+
+    def rebase2rts(self, ts: realevel):
+        from ._x_time import Time
+
+        rts = realtimeseries()
+        if ts == self.timescale:
+            rts.add(self)
+        elif ts < self.timescale:
+            rts.add(self.rebase(ts))
+        else:
+            if self.timescale == realevel.YEAR:
+                for m in range(1, 12+1):
+                    rts.add(realtime(self.year, m).rebase2rts(ts))
+            elif self.timescale == realevel.MONTH:
+                for d in range(1, Time.get_days_from_ym(self.year, self.month)+1):
+                    rts.add(realtime(self.year, self.month, d).rebase2rts(ts))
+            elif self.timescale == realevel.DAY:
+                for h in range(24):
+                    rts.add(realtime(self.year, self.month, self.day, h).rebase2rts(ts))
+            elif self.timescale == realevel.HOUR:
+                for m in range(60):
+                    rts.add(realtime(self.year, self.month, self.day, self.hour, m).rebase2rts(ts))
+            elif self.timescale == realevel.MINUTE:
+                for s in range(60):
+                    rts.add(realtime(self.year, self.month, self.day, self.hour, self.minute, s).rebase2rts(ts))
+            else:
+                raise ShouldNeverSeeError
+        return rts
+
+            
+
+
+
+
+class realtimeseries:
+    def __init__(self, *args):
+        self.rts = []
+        if len(args) == 0:
+            return
+    
+        if len(args) == 2:
+            rt1, rt2 = args
+            delta = None
+        elif len(args) == 3:
+            rt1, rt2, delta = args
+        else:
+            raise TypeError
+
+        if rt1 > rt2:
+            raise ValueError
+        if rt1.timescale != rt2.timescale:
+            raise ValueError("Error! realtimeseries only works for realtime objects with the same timescale!")
+        ts = rt1.timescale
+        if delta is None:
+            delta = freetime(**{ts.name.lower(): 1})
+        elif rt1 + delta == rt1:
+            raise ValueError
+
+        rtT = rt1.copy()
+
+        while rtT <= rt2:
+            self.rts.append(rtT.copy())
+            rtT += delta
+        
+        return
+
+
+    
+    
+    
+    @property
+    def timescale(self):
+        if not self.rts:
+            return realevel.UNKNOWN
+        else:
+            return self.rts[0].timescale
+
+    def add(self, rt1s: realtime | realtimeseries):
+        if isinstance(rt1s, realtime):
+            self.rts.append(rt1s)
+        elif isinstance(rt1s, realtimeseries):
+            self.rts.extend(rt1s.rts)
+        else:
+            raise TypeError
