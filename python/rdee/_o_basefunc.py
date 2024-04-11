@@ -2,6 +2,8 @@
 # coding=utf-8
 
 
+from typing import Sequence
+
 def singleton(orig_cls):
     """
     A functional decorator for implementing singleton coding protocol.
@@ -26,3 +28,16 @@ def singleton(orig_cls):
 
     #@sk <return/>
     return orig_cls
+
+
+def is_sequence(obj):
+    return isinstance(obj, Sequence) and not isinstance(obj, str)
+
+
+def isinstanceAll(seq: Sequence, targetType):
+    if not is_sequence(seq):
+        raise TypeError
+    for ele in seq:
+        if not isinstance(ele, targetType):
+            return False
+    return True
