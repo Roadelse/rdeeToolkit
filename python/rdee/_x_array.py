@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Sequence
 from enum import Enum
+from collections import OrderedDict
 
 import numpy as np
 
@@ -139,5 +140,22 @@ class Array:
         else:  #@sk branch impossible
             raise ShouldNeverSeeError
 
-
+    @staticmethod
+    def unique_with_mapping(vseq, merge_result = False):
+        if merge_result: 
+            raise NotImplementedError
+        
+        #@ status | merge_result = True
+        rst = OrderedDict()
+        v_last = None
+        i_last = -1
+        for i_v, v in enumerate(vseq):
+            if v == v_last:
+                continue
+            if v != v_last:
+                if v_last is not None:
+                    rst[v_last] = (i_last, i_v-1)
+                i_last, v_last = i_v, v
+        rst[v_last] = (i_last, len(vseq)-1)
+        return rst
 

@@ -48,7 +48,7 @@ class _tarray(np.ndarray):
         assert hasattr(tseq, "__len__") and len(tseq) == self.shape[tdim]
 
         self.tdim: int = tdim
-        self.rts: Sequence = realtimeseries(tseq)
+        self.rts: Sequence = realtimeseries(tseq)  #@ ?? | if non-monotonic?
         # self.isTimeContinuous: bool = ??
 
 
@@ -69,6 +69,7 @@ class _tarray(np.ndarray):
         elif op == DRPC4T.YEAR_AVG:
             if self.rts.timescale <= realevel.YEAR:
                 raise ValueError
+            #@ status | ts > realevel.YEAR
             
 
 

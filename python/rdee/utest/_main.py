@@ -6,6 +6,7 @@ import os.path
 
 import unittest
 import inspect
+from collections import OrderedDict
 
 
 
@@ -651,6 +652,12 @@ class Test_array(unittest.TestCase):
 
         arr1_drp = Array.drp(arr1, dims=2, op=DRPC.min, mapping={0:[2,3], 1:[0, 1]})
         self.assertListEqual([2,0,6,4,10,8,14,12,18,16,22,20], arr1_drp.reshape(-1).tolist())  #@sk reference list is set manually
+
+    def test_unique_with_mapping(self) -> None:
+        from .._x_array import Array
+
+        vseq = [1,1,2,2,3,3,3,1]
+        self.assertDictEqual(OrderedDict([(1, (0,1)), (2, (2,3)), (3, (4,6)), (1, (7, 7))]), Array.unique_with_mapping(vseq))
 
 
 class Test_win(unittest.TestCase):
