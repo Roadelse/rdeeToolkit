@@ -16,11 +16,11 @@ Author:
 
 import os
 
-
 from rdee import _o_globalstate as ogs
 
 if os.getenv("reStrict") or os.getenv("reStrict_package_rdee"):
     ogs.strict = True
+
 
 from ._x_logging import getLogger, getAllHandlers, has_stdout_handler
 
@@ -32,11 +32,9 @@ from ._x_os import rmrf
 from ._x_string import String
 from ._x_win import createShortCut, GetShortCut, path2wsl, path2win
 
-
-myDir = os.path.dirname(os.path.abspath(__file__))
-if (not os.path.exists(f"{myDir}/_xx_redtime.py")) or os.stat(f"{myDir}/_xx_redtime.py.jj2").st_mtime > os.stat(f"{myDir}/_xx_redtime.py").st_mtime:
-    ogs.logger.info("Rendering _xx_redtime.py from jinja2 source ...")
-    os.system(f"{myDir}/render.ps1")
+if os.getenv("RDEEDEV"):
+    from rdee.__dev__ import update_jj2
+    update_jj2()
 
 # from ._array import *
 from ._x_time import Time

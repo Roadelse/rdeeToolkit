@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 
-
+import importlib.util
 from typing import Sequence
 
 def singleton(orig_cls):
@@ -41,3 +41,18 @@ def isinstanceAll(seq: Sequence, targetType):
         if not isinstance(ele, targetType):
             return False
     return True
+
+
+def load_module_from_path(module_path, module_name=None):
+    """
+    load a module from filepath
+    -----------------------------------
+    2024-04-12 init
+    """
+    if module_name is None:
+        module_name = module_path.split('/')[-1].split('.')[0]
+    
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

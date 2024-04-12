@@ -220,6 +220,7 @@ from collections import OrderedDict
 #         self.assertGreater(len(ctt_rc_lines[1]), 40)
 #         self.assertGreater(len(ctt_rc_lines[2]), 15)
 
+
 class Test_Logging(unittest.TestCase):
     """
     This class contains several test functions in relation with logging
@@ -237,21 +238,25 @@ class Test_Logging(unittest.TestCase):
         print(f"***************************************************")
         #@sk <get-path/>
         casename, funcname = self.id().split(".")[-2:]
-        testDir: str = f"ade.utest/{casename[5:]}/{funcname[5:]}"
+        self.testDir: str = f"ade.utest/{casename[5:]}/{funcname[5:]}"
 
         #@sk <os-operation desc="mkdir -> rm -rf -> cd, and store the current working directory"/>
-        os.makedirs(testDir, exist_ok=True)
-        rmrf(testDir, use_strict=True)
+        os.makedirs(self.testDir, exist_ok=True)
+        rmrf(self.testDir, use_strict=True)
         self.wdir = os.path.curdir  #@sk store working path for go back in self.tearDown()
-        os.chdir(testDir)
+        os.chdir(self.testDir)
 
     def tearDown(self) -> None:
         """
         Go back to original workding directory
         """
+        from .. import rmrf
+
         print("\n\n\n")
         os.chdir(self.wdir)
-        return super().tearDown()
+        rmrf(self.testDir, use_strict=True)
+
+        # return super().tearDown()
 
     def test_getLogger(self):
         """
@@ -339,6 +344,10 @@ datefmt=%Y-%m-%d %H:%M:%S
         self.assertEqual(2, len(open("test1.log").readlines()))
         self.assertEqual(2, len(open("test2.log").readlines()))
         self.assertEqual("", open("test3.log").read())
+
+
+
+
 
 
 class Test_basicfunc(unittest.TestCase):
@@ -431,6 +440,7 @@ class Test_time(unittest.TestCase):
         from .._x_time import Time
 
         self.assertEqual(1, Time.get_jdays(1,1,2014))
+
 
 class Test_redtime(unittest.TestCase):
     def setUp(self) -> None:
@@ -624,7 +634,6 @@ class Test_redtime(unittest.TestCase):
         self.assertEqual("2024/1/1", str(rts2.rts[0]))
         self.assertEqual("2024/12/31", str(rts2.rts[-1]))
         self.assertEqual("2024/12/30", str(rts2.rts[-2]))
-
 
 
 class Test_array(unittest.TestCase):

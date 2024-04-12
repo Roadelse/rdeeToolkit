@@ -1,0 +1,12 @@
+    #@ <jinja2 id="_time.ymdhs">
+    #@jj2 for v in ["year", "month", "day", "hour", "minute", "second", "msecond"]:
+    @property
+    def {{ v }}(self):
+        return self._values[{{ loop.index0 }}]
+    @{{ v }}.setter
+    def {{ v }}(self, val: int):
+        assert isinstance(val, int)
+        self._values[{{ loop.index0 }}] = val
+
+    #@jj2 endfor
+    #@ </jinja2>

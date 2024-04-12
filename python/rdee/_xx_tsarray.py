@@ -16,7 +16,7 @@ from typing import Sequence
 from ._o_globalstate import logger
 from ._x_time import Time
 from ._o_error import ShouldNeverSeeError
-from ._x_array import Array
+from ._x_array import Array, DRPC
 
 class DRPC4T(Enum):
     """
@@ -56,7 +56,7 @@ class _tarray(np.ndarray):
         """
         This function aims to do the dimension-reduced processing across the time dimension
         """
-        from ._xx_redtime import realevel
+        from ._xx_redtime import realevel, realtimeseries
 
         if op == DRPC4T.ALL_AVG:
             rst = self.mean(axis=self.tdim)
@@ -70,7 +70,14 @@ class _tarray(np.ndarray):
             if self.rts.timescale <= realevel.YEAR:
                 raise ValueError
             #@ status | ts > realevel.YEAR
-            
+            rtsN = self.rts.rebase(realevel.YEAR)
+            rtsNU = Array.unique_with_mapping(rtsN.rts, merge_result=False)
+            rst = Array.drp(self, self.tdim, DRPC.AVG, rtsNU)
+            rst.rts = realtimeseries(list(rtsNU.keys()))
+        else:
+            raise NotImplementedError
+
+        return rst
 
 
 

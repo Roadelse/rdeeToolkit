@@ -1,0 +1,22 @@
+    #@ <jinja2 id="realtime.ymdhs">
+    #@jj2 for v in ["year", "month", "day", "hour", "minute", "second", "msecond"]:
+    @property
+    def {{ v }}(self):
+        return self._values[{{ loop.index0 }}]
+
+    @{{ v }}.setter
+    def {{ v }}(self, val: int):
+        self._values[{{ loop.index0 }}] = val
+        #@jj2 if not loop.first:
+        if self.timescale.value < realevel.{{ loop.previtem.upper() }}.value:
+            raise RuntimeError("set time across multiple levels")
+        #@jj2 endif
+        self._timescale = realevel.UNKNOWN
+        self.check(realevel.{{ v.upper() }})
+    
+    def set_{{ v }}(self, val: int):
+        self.{{ v }} = val
+        return self
+
+    #@jj2 endfor
+    #@ </jinja2>

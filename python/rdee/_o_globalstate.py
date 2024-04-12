@@ -11,3 +11,5 @@ import logging
 strict: bool = False
 
 logger: logging.Logger | None = None
+
+debugs: tuple | None = None

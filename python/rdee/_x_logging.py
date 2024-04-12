@@ -35,7 +35,7 @@ def has_stdout_handler(lgr: logging.Logger) -> bool:
     return False
 
 
-def getLogger(name, configfile: str = "logging.config", clevel = logging.DEBUG, flevel = logging.DEBUG, fpath: str = "", propagate: bool = True) -> logging.Logger:
+def getLogger(name, configfile: str = "logging.config", clevel = logging.NOTSET, flevel = logging.NOTSET, fpath: str = "", propagate: bool = True) -> logging.Logger:
     """
     This function aims to get a logging.Logger according to arg:name, after loading local selected/default config file.
     :param name: target name for logger
@@ -55,6 +55,8 @@ def getLogger(name, configfile: str = "logging.config", clevel = logging.DEBUG, 
 
     #@sk <envfilter desc="add default environment filter"/>
     def envfilter(record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.WARNING:
+            return True
         #@sk <once-through desc="get filter targets in this running"/>
         if not hasattr(envfilter, "targets"):
             targetStr = os.getenv("reDebugTargets")
@@ -65,7 +67,7 @@ def getLogger(name, configfile: str = "logging.config", clevel = logging.DEBUG, 
 
         #@sk <judge desc="judge if record should be filtered based on targets"/>
         targets = getattr(envfilter, "targets")
-        if targets is None:
+        if targets is None or "ALL" in targets:
             return True
         else:
             return record.funcName in targets
@@ -87,7 +89,10 @@ def getLogger(name, configfile: str = "logging.config", clevel = logging.DEBUG, 
         return logger
     
     #@sk <set-logger desc="setting logger based on arguments" />
-    logger.setLevel(logging.DEBUG)
+    if os.getenv("reDebugTargets") or os.getenv("reDebug"):
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
 
     if not has_stdout_handler(logger) and clevel is not None:  #@sk branch set console handler
         sh = logging.StreamHandler(sys.stdout)

@@ -7,8 +7,11 @@
 #@ to do it, avoiding heavy coding at each time.
 #@ [-] Usage
 #@      ● python3 txtop.ra-nlines.py utest   # do the unit test
-#@      ● python3 txtop.ra-nlines.py basefile rafile   # c/a/r content in rafile into basefile
+#@      ● python3 txtop.ra-nlines.py basefile rafile   # replace/append content in rafile into basefile
+#@      ● python3 txtop.ra-nlines.py basefile rafile -a $header   # set header content for operation:append
+#@      ● python3 txtop.ra-nlines.py basefile rafile -r   # only do operation:replace, do not append
 #@ ----------------------------------------------------------------
+#@ 2024-04-12       rebuild     | use argparse to resolve command line arguments now
 #@ 2024-02-20       Init
 #@ <Introduction/>
 
@@ -20,7 +23,7 @@ import os
 import os.path
 import sys
 from typing import Optional
-# import argparse  #@ exp use direct arguments now @2024-02-19 17:24:05
+import argparse
 
 #@ prepare 
 #@ .version-check
@@ -36,7 +39,7 @@ headerStock = {
 }
 
 #@ core
-def ra_nlines(basefile: str, rafile: str, cheader: Optional[str] = None) -> None:
+def ra_nlines(basefile: str, rafile: str, cheader: Optional[str] = None, replace_only: bool = False) -> None:
     #@ <prepare>
     #@ <.pre-check>
     assert os.path.exists(rafile)
@@ -69,10 +72,13 @@ def ra_nlines(basefile: str, rafile: str, cheader: Optional[str] = None) -> None
     
     #@ <.branch:append>
     if imatch == -1:
-        with open(basefile, "a") as f:
-            f.write("\n")
-            f.write(open(rafile, encoding="utf-8").read())
-            f.write("\n")
+        if not replace_only:
+            with open(basefile, "a") as f:
+                f.write("\n")
+                f.write(open(rafile, encoding="utf-8").read())
+                f.write("\n")
+        else:
+            print("Cannot find target code snippets for replacement, return")
         return
 
     #@ <.branch:replace>
@@ -111,17 +117,32 @@ def utest():
     baseContent = open("base.py", encoding="utf-8").read()
     try:
         assert baseContent == "123\n000\n789\n101", baseContent
+        print("unittest pass √")
     finally:
         os.remove("base.py")
         os.remove("ra.py")
+    
         
 #@ entry
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser(description="""arguments for text-opeartion: replace/append multiple lines""")
 
-    if len(sys.argv) == 2 and sys.argv[1] == "utest":  #@ branch unittest
+    parser = argparse.ArgumentParser(description="""replace/append source content into target file""")
+    parser.add_argument('--utest', '-u', action="store_true", help='start unittest')
+    parser.add_argument('--replace_only', '-r', action="store_true", help='only do operation:replace, do not do operation:append') 
+    parser.add_argument('--header', '-a', default=None, help='headers in operation:append') 
+    parser.add_argument('dstfile', nargs='?', default="", help="destination file")
+    parser.add_argument('srcfile', nargs='?', default="", help="source file")
+
+    args = parser.parse_args()
+
+    if args.utest:
         utest()
-    else:  #@ branch comman usage, text file operation
-        assert len(sys.argv) in (3, 4)
-        ra_nlines(sys.argv[1], sys.argv[2], None if len(sys.argv) == 3 else sys.argv[3])
+        sys.exit()
+
+    if not args.srcfile or not args.dstfile:
+        raise TypeError("The following arguments are requireds: dstfile, srcfile")
+
+    ra_nlines(args.dstfile, args.srcfile, cheader=args.header, replace_only=args.replace_only)
+
 
