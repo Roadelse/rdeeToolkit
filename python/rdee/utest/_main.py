@@ -3,16 +3,58 @@
 # ................. standard lib
 import os
 import os.path
+import logging
 
 import unittest
 import inspect
 from collections import OrderedDict
 
+from rdee import rmrf
 
 
 # ................. project lib
 # ................. 3rd libs
 
+
+
+class ISetup:
+    """
+    Interface class implementing general setUpClass & setUp methods for the belowing TestCases
+    """
+    @classmethod
+    def setUpClass(cls) -> None:
+        from rdee import rmrf
+        os.chdir(utest_dir)
+        cls.testDir: str = os.path.abspath(cls.__name__[5:])
+
+        os.makedirs(cls.testDir)
+        os.chdir(cls.testDir)
+
+        print(f"\n***************************************************")
+        print(f"TestCase: {cls.__name__[5:]}")
+        print(f"***************************************************")
+
+    def setUp(self) -> None:
+        """
+        print start information via puer print()
+        &
+        prepare test directory and enter it
+        """
+        from .. import rmrf
+
+        # mid = '.'.join(self.id().split(".")[-2:])
+        mid = self.id().split(".")[-1]
+
+        print(f">>>>> test method: {mid} <<<<<")
+        
+        #@sk <get-path/>
+        os.chdir(self.__class__.testDir)
+        _, funcname = self.id().split(".")[-2:]
+        self.testDir: str = f"{funcname[5:]}"
+
+        #@sk <os-operation desc="mkdir -> rm -rf -> cd, and store the current working directory"/>
+        os.makedirs(self.testDir)
+        os.chdir(self.testDir)
 
 
 # class TestPrior(unittest.TestCase):
@@ -221,42 +263,15 @@ from collections import OrderedDict
 #         self.assertGreater(len(ctt_rc_lines[2]), 15)
 
 
-class Test_Logging(unittest.TestCase):
+class Test_Logging(ISetup, unittest.TestCase):
     """
     This class contains several test functions in relation with logging
     """
-    def setUp(self) -> None:
-        """
-        print start information via puer print()
-        &
-        prepare test directory and enter it
-        """
-        from .. import rmrf
-
-        print(f"\n***************************************************")
-        print(f"Running test: {self.id()}")
-        print(f"***************************************************")
-        #@sk <get-path/>
-        casename, funcname = self.id().split(".")[-2:]
-        self.testDir: str = f"ade.utest/{casename[5:]}/{funcname[5:]}"
-
-        #@sk <os-operation desc="mkdir -> rm -rf -> cd, and store the current working directory"/>
-        os.makedirs(self.testDir, exist_ok=True)
-        rmrf(self.testDir, use_strict=True)
-        self.wdir = os.path.curdir  #@sk store working path for go back in self.tearDown()
-        os.chdir(self.testDir)
-
-    def tearDown(self) -> None:
-        """
-        Go back to original workding directory
-        """
-        from .. import rmrf
-
-        print("\n\n\n")
-        os.chdir(self.wdir)
-        rmrf(self.testDir, use_strict=True)
-
-        # return super().tearDown()
+    # def tearDown(self) -> None:
+    #     """
+    #     Go back to original workding directory
+    #     """
+    #     print("\n\n\n")
 
     def test_getLogger(self):
         """
@@ -345,7 +360,21 @@ datefmt=%Y-%m-%d %H:%M:%S
         self.assertEqual(2, len(open("test2.log").readlines()))
         self.assertEqual("", open("test3.log").read())
 
+    def test_logFilter(self):
+        from .._o_globalstate import logger
 
+        def f1():
+            logger.info("in f1")
+        
+        def f2():
+            logger.info("in f2")
+
+        os.environ["reDebugTargets"] = "f1"
+
+        logger.addHandler(logging.FileHandler("test_logFilter.log"))
+        f1()
+        f2()
+        self.assertEqual("in f1\n", open("test_logFilter.log").read())
 
 
 
@@ -691,12 +720,13 @@ class Test_win(unittest.TestCase):
             path2wsl(r"/mnt2/d/recRoot/Roadelse/Life/Daily", require_existed=True)
 
 
-def run(targets: list[str]) -> None:
+def run(targets: list[str], remainTest: bool) -> None:
     """
     Runner for the test cases & test functions in this utest packaghe
     Support both TestCase-Level and test_function-level selections, automatically get target TestCases/test-functions and load them into a suite, finally run the suite
     :param targets: a list fo targets to be tested, if empty, run all the tests
     """
+    global utest_dir
 
     #@sk <prepare desc="get all TestCases and TestFunctions in two dictionaries"/>
     allTestCases = {}
@@ -749,4 +779,11 @@ def run(targets: list[str]) -> None:
             suite.addTest(tc[0](tc[1]))  #@sk Here we actually instantiate the TestCase class, the function name is used to tell which function should be tested
         else:
             suite.addTest(loader.loadTestsFromTestCase(tc))
+    
+    utest_dir = os.path.abspath("ade.utest")
+    rmrf(utest_dir)
+    os.makedirs(utest_dir, exist_ok=True)
+    os.chdir(utest_dir)
     runner.run(suite)
+    if not remainTest:
+        rmrf(utest_dir)

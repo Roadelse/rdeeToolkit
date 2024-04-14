@@ -13,17 +13,21 @@ import shutil
 from rdee import _o_globalstate as ogs
 
 
-def rmrf(directory: str, use_strict: bool = False) -> None:
+def rmrf(directory: str, use_strict: bool = False, remain_itself: bool = False) -> None:
     #@sk prepare check if use strict
     if ogs.strict:
         use_strict = True
 
     #@sk boundary if directory doesn't exist
-    if not os.path.exists(directory):
+    if not os.path.isdir(directory):
         if use_strict:
-            raise RuntimeError("Error! Try to rmrf in a non-existed directory")
+            raise RuntimeError("Error! Target to rmrf in not an existed directory")
         return None
     
+    if not remain_itself:
+        shutil.rmtree(directory)
+        return
+
     #@sk core
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
@@ -36,3 +40,4 @@ def rmrf(directory: str, use_strict: bool = False) -> None:
             print(f'Failed to delete {file_path}. Reason: {e}')
             if use_strict:  #@sk raise error if use_strict
                 raise
+    
